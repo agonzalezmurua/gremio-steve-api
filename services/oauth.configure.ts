@@ -1,4 +1,4 @@
-import Express from "express";
+import * as express from "express";
 import {
   requestAuthorization as osuAuthorization,
   handleAuthentication as osuAuthentication,
@@ -11,7 +11,7 @@ import {
  * @param {import('express').Application} app
  */
 export async function configure(app) {
-  const router = Express.Router();
+  const router = express.Router();
 
   router.get("/osu", osuAuthorization);
   router.post("/osu/token", osuAuthentication);

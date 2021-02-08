@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from "express";
-import consola from "consola";
+import * as consola from "consola";
 
 /**
  * Generic error handler for every appended request

@@ -1,4 +1,4 @@
-import mongoose from "mongoose";
+import * as mongoose from "mongoose";
 import { Request, Response } from "express";
 
 import JourneySchema, { IJourneyDocument } from "../schemas/journey";

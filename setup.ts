@@ -1,9 +1,9 @@
-import consola from "consola";
-import colors from "colors";
+import * as consola from "consola";
+import * as colors from "config";
 import cors from "cors";
 import bodyParser from "body-parser";
 import cookieParser from "cookie-parser";
-import config from "config";
+import * as config from "config";
 
 import prefixes from "./constants/consola_prefixes";
 import { configure as configureOsuClient } from "./services/osu.configure";

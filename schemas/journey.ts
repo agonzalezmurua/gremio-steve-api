@@ -1,5 +1,5 @@
-import mongoose from "mongoose";
-import mongoose_fuzzy_searching from "mongoose-fuzzy-searching";
+import * as mongoose from "mongoose";
+import mongoose_fuzzy_searching = require("mongoose-fuzzy-searching");
 
 import { IBeatmap, Modes, ModeType } from "./beatmap";
 import { IUser } from "./user";

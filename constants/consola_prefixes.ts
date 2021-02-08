@@ -1,4 +1,4 @@
-import colors from "colors";
+import * as colors from "colors";
 
 /**
  * Prefix labels to ad more clarity to consola outputs

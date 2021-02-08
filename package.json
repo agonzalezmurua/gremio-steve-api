@@ -38,7 +38,7 @@
     "@types/lodash": "^4.14.168"
   },
   "scripts": {
-    "start": "node -r dotenv/config -r esm -r ts-node/register app.ts",
+    "start": "node -r ts-node/register app.ts",
     "cli": "cross-env CONSOLA_LEVEL=4 node --inspect -r dotenv/config -r esm utils/cli.js",
     "prod": "node index.js"
   },

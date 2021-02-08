@@ -1,5 +1,5 @@
 import express, { Application } from "express";
-import mongoose from "mongoose";
+import * as mongoose from "mongoose";
 
 class BaseController<T extends mongoose.Document> {
   public readonly model: mongoose.Model<T>;

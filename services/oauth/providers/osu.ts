@@ -1,6 +1,6 @@
 import axios from "axios";
-import consola from "consola";
-import config from "config";
+import * as consola from "consola";
+import * as config from "config";
 import { encode } from "querystring";
 import { Request, Response } from "express";
 

@@ -1,7 +1,7 @@
 import axios from "axios";
-import colors from "colors";
-import consola from "consola";
-import config from "config";
+import * as colors from "config";
+import * as consola from "consola";
+import * as config from "config";
 
 import prefixes from "../constants/consola_prefixes";
 import configureToken from "./osu/token";

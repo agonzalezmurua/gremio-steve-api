@@ -1,4 +1,4 @@
-import Express from "express";
+import * as express from "express";
 import Users from "../routes/users";
 import Journeys from "../routes/journeys";
 import errorHandler from "../middlewares/errorHandler";
@@ -8,7 +8,7 @@ import errorHandler from "../middlewares/errorHandler";
  * @param {import('express').Application} app
  */
 export async function configure(app) {
-  const router = Express.Router();
+  const router = express.Router();
 
   router.use("/users", Users);
   router.use("/journeys", Journeys);

@@ -1,5 +1,5 @@
-import consola from "consola";
-import colors from "colors";
+import * as consola from "consola";
+import * as colors from "config";
 import prefixes from "../constants/consola_prefixes";
 
 /**

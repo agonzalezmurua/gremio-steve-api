@@ -23,7 +23,7 @@ class Metadata implements IMetadata {
   name: "Journey",
 })
 class Journey implements IJourney {
-  @ApiModelProperty()
+  // @ApiModelProperty()
   public _id: string;
 
   public title: string;
