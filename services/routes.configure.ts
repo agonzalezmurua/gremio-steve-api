@@ -1,7 +1,6 @@
 import Express from "express";
-
+import Users from "../routes/users";
 import errorHandler from "../middlewares/errorHandler";
-import users from "../routes/user";
 
 /**
  * Configures api routes
@@ -10,7 +9,7 @@ import users from "../routes/user";
 export async function configure(app) {
   const router = Express.Router();
 
-  router.use("/users", users);
+  router.use(Users);
 
   router.use(errorHandler);
   app.use(router);

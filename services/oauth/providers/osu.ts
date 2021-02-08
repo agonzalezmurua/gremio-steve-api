@@ -4,10 +4,9 @@ import config from "config";
 import { encode } from "querystring";
 import { Request, Response } from "express";
 
-import prefixes from "../../../constants/consola_prefixes";
-import User, { IUser } from "../../../providers/database/user";
-
 import { issueAuthentication } from "../authentication";
+import UserController from "../../../controllers/users";
+import prefixes from "../../../constants/consola_prefixes";
 
 const redirect_uri = config.get("web.url") + config.get("web.osu_callback");
 
@@ -79,11 +78,11 @@ export async function handleAuthentication(
     await client.delete(`${config.get("osu.api.path")}/oauth/tokens/current`);
 
     consola.debug(prefixes.oauth_osu, "retrieving user from database");
-    let user = await User.findOne({ osu_id: me.id }).exec();
+    let user = await UserController.model.findOne({ osu_id: me.id }).exec();
 
     if (!user) {
       consola.debug(prefixes.oauth_osu, "user does not exist, creating");
-      user = new User();
+      user = new UserController.model();
     }
 
     user = Object.assign(user, {

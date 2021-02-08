@@ -1,13 +1,12 @@
 import colors from "colors";
 import consola from "consola";
-import Express from "express";
+import express from "express";
 import config from "config";
 
 import prefixes from "./constants/consola_prefixes";
-
 import setup from "./setup";
 
-const app = Express();
+const app = express();
 const port = config.get("app.port") || 3000;
 
 setup(app)

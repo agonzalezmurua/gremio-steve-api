@@ -6,6 +6,9 @@
     "module": "ESNext",
     "moduleResolution": "Node",
     "target": "ESNext",
-    "allowSyntheticDefaultImports": true
+    "allowSyntheticDefaultImports": true,
+    "resolveJsonModule": true,
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true
   }
 }

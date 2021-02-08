@@ -1,7 +1,7 @@
 import consola from "consola";
 import inquirer from "inquirer";
 
-import * as Db from "../providers/database";
+import * as Db from "../schemas";
 import { configure as configureDatabase } from "../services/database.configure";
 import { deleteNgrams, updateNgrams } from "./batch_operations";
 

@@ -10,7 +10,8 @@ export const Roles = {
   moderator: "moderator",
 };
 
-export interface IUser extends mongoose.Document {
+export interface IUser {
+  _id: string;
   osu_id: string;
   name: string;
   active: boolean;
@@ -18,7 +19,7 @@ export interface IUser extends mongoose.Document {
   banner_url?: string;
   availability: {
     mods: boolean;
-    guest_diifs: boolean;
+    guest_diffs: boolean;
     playtesting: boolean;
   };
   journeys: IJourney[];
@@ -30,7 +31,9 @@ export interface IUser extends mongoose.Document {
   queue: IJourney[];
 }
 
-const UserSchema = new mongoose.Schema<IUser>(
+export type IUserSchema = IUser & mongoose.Document;
+
+export const UserSchema = new mongoose.Schema<IUserSchema>(
   {
     osu_id: { type: String, required: true },
     name: { type: String, required: true },
@@ -62,16 +65,10 @@ const UserSchema = new mongoose.Schema<IUser>(
   {
     timestamps: { createdAt: "created_at", updatedAt: "updated_at" },
   }
-);
-
-UserSchema.plugin(mongoose_fuzzy_searching, {
+).plugin(mongoose_fuzzy_searching, {
   fields: [
     {
       name: "username",
     },
   ],
 });
-
-const UserModel = mongoose.model("User", UserSchema);
-
-export default UserModel;

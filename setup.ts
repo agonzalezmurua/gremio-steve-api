@@ -10,10 +10,12 @@ import { configure as configureOsuClient } from "./services/osu.configure";
 import { configure as configureDatabase } from "./services/database.configure";
 import { configure as configureOauth } from "./services/oauth.configure";
 import { configure as configureRoutes } from "./services/routes.configure";
+import { configure as configureSwagger } from "./services/swagger.configure";
+
 import trafficLogger from "./middlewares/trafficLogger";
 
 const handleError = (service) => (error) => {
-  consola.error("failed to", service + ":\n", error);
+  consola.error("failed to configure", service + ":\n", error);
 };
 
 /**
@@ -38,9 +40,10 @@ export default async function setup(app) {
   app.use(trafficLogger);
 
   await Promise.all([
-    configureOauth(app).catch(handleError("configure oauth")),
-    configureRoutes(app).catch(handleError("configure routes")),
-    configureOsuClient().catch(handleError("configure osu client")),
-    configureDatabase().catch(handleError("configure database")),
+    configureSwagger(app).catch(handleError("swagger")),
+    configureOauth(app).catch(handleError("oauth")),
+    configureRoutes(app).catch(handleError("routes")),
+    configureOsuClient().catch(handleError("osu client")),
+    configureDatabase().catch(handleError("database")),
   ]);
 }
