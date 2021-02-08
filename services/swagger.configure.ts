@@ -1,16 +1,14 @@
 import "reflect-metadata";
-import express, { Application } from "express";
-import swagger from "swagger-express-ts";
-
-import UserModel from "../models/user";
+import Express, { Application } from "express";
+import * as swagger from "swagger-express-ts";
 
 import packageJson from "../package.json";
 
 export async function configure(app: Application) {
-  app.use("/api-docs/swagger", express.static("static/swagger"));
+  app.use("/api-docs/swagger", Express.static("static/swagger"));
   app.use(
     "/api-docs/swagger/assets",
-    express.static("node_modules/swagger-ui-dist")
+    Express.static("node_modules/swagger-ui-dist")
   );
   app.use(
     swagger.express({

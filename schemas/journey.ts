@@ -21,19 +21,20 @@ export const Statuses = {
   closed: "closed",
 };
 
-export interface IJourney extends mongoose.Document {
-  _id: string;
+export interface IMetadata {
+  genre: string;
+  bpm: number[];
+  closure?: string;
+  duration: number;
+}
+
+export interface IJourney {
   title: string;
   artist: string;
   organizer: IUser;
   thumbnail_url: string;
   banner_url: string;
-  metadata: {
-    genre: string;
-    bpm: number[];
-    closure?: string;
-    duration: number;
-  };
+  metadata: IMetadata;
   modes: ModeType[];
   description?: string;
   status: JourneyStatus;
@@ -42,7 +43,9 @@ export interface IJourney extends mongoose.Document {
   osu_link?: string;
 }
 
-const JourneySchema = new mongoose.Schema<IJourney>(
+export interface IJourneyDocument extends IJourney, mongoose.Document {}
+
+const JourneySchema = new mongoose.Schema<IJourneyDocument>(
   {
     title: String,
     artist: String,
@@ -90,6 +93,4 @@ JourneySchema.plugin(mongoose_fuzzy_searching, {
   ],
 });
 
-const JourneyModel = mongoose.model("Journey", JourneySchema);
-
-export default JourneyModel;
+export default JourneySchema;

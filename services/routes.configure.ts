@@ -1,5 +1,6 @@
 import Express from "express";
 import Users from "../routes/users";
+import Journeys from "../routes/journeys";
 import errorHandler from "../middlewares/errorHandler";
 
 /**
@@ -9,7 +10,8 @@ import errorHandler from "../middlewares/errorHandler";
 export async function configure(app) {
   const router = Express.Router();
 
-  router.use(Users);
+  router.use("/users", Users);
+  router.use("/journeys", Journeys);
 
   router.use(errorHandler);
   app.use(router);

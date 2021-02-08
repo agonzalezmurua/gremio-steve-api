@@ -4,24 +4,25 @@ import mongoose_fuzzy_searching from "mongoose-fuzzy-searching";
 import { IJourney } from "./journey";
 import { ModeType, Modes } from "./beatmap";
 
-export const Roles = {
+export const UserRoles = {
   admin: "admin",
   user: "user",
   moderator: "moderator",
 };
 
+export interface IAvailability {
+  mods: boolean;
+  guest_diffs: boolean;
+  playtesting: boolean;
+}
+
 export interface IUser {
-  _id: string;
   osu_id: string;
   name: string;
   active: boolean;
   avatar_url: string;
   banner_url?: string;
-  availability: {
-    mods: boolean;
-    guest_diffs: boolean;
-    playtesting: boolean;
-  };
+  availability: IAvailability;
   journeys: IJourney[];
   community_role: string;
   role: "admin" | "user" | "moderator";
@@ -31,9 +32,9 @@ export interface IUser {
   queue: IJourney[];
 }
 
-export type IUserSchema = IUser & mongoose.Document;
+export interface IUserDocument extends IUser, mongoose.Document {}
 
-export const UserSchema = new mongoose.Schema<IUserSchema>(
+const UserSchema = new mongoose.Schema<IUserDocument>(
   {
     osu_id: { type: String, required: true },
     name: { type: String, required: true },
@@ -51,8 +52,8 @@ export const UserSchema = new mongoose.Schema<IUserSchema>(
     community_role: String,
     role: {
       type: String,
-      enum: [Roles.admin, Roles.moderator, Roles.user],
-      default: Roles.user,
+      enum: [UserRoles.admin, UserRoles.moderator, UserRoles.user],
+      default: UserRoles.user,
       select: false,
     },
     preferences: {
@@ -65,10 +66,14 @@ export const UserSchema = new mongoose.Schema<IUserSchema>(
   {
     timestamps: { createdAt: "created_at", updatedAt: "updated_at" },
   }
-).plugin(mongoose_fuzzy_searching, {
+);
+
+UserSchema.plugin(mongoose_fuzzy_searching, {
   fields: [
     {
       name: "username",
     },
   ],
 });
+
+export default UserSchema;

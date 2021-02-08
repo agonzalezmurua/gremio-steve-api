@@ -1,6 +1,4 @@
 import mongoose from "mongoose";
-
-import { Document } from "mongoose";
 import { IUser } from "./user";
 
 export type ModeType = "std" | "taiko" | "ctb" | "mania";
@@ -28,7 +26,7 @@ export const BeatmapStatuses = {
   problem: "problem",
 };
 
-export interface IBeatmap extends Document {
+export interface IBeatmap {
   _id: string;
   name: string;
   mode: ModeType;
@@ -37,7 +35,9 @@ export interface IBeatmap extends Document {
   assignee?: IUser;
 }
 
-export const BeatmapSchema = new mongoose.Schema<IBeatmap>(
+export interface IBeatmapSchema extends mongoose.Document<IBeatmap> {}
+
+const BeatmapSchema = new mongoose.Schema<IBeatmapSchema>(
   {
     name: String,
     mode: {
@@ -71,3 +71,5 @@ export const BeatmapSchema = new mongoose.Schema<IBeatmap>(
   },
   { timestamps: { createdAt: "created_at", updatedAt: "updated_at" } }
 );
+
+export default BeatmapSchema;

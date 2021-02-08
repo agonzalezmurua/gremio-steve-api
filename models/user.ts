@@ -1,74 +1,49 @@
-import Swagger from "swagger-express-ts";
-
 import { ModeType } from "../schemas/beatmap";
 import { IJourney } from "../schemas/journey";
-import { IUser, IUserSchema } from "../schemas/user";
+import { IUser, IUserDocument, IAvailability } from "../schemas/user";
 
-@Swagger.ApiModel({
-  name: "User",
-  description: "Registered user structure",
-})
+class UserAvailability implements IAvailability {
+  mods: boolean;
+  guest_diffs: boolean;
+  playtesting: boolean;
+
+  constructor(document: IAvailability) {
+    this.mods = document.mods;
+    this.guest_diffs = document.guest_diffs;
+    this.playtesting = document.playtesting;
+  }
+}
+
 export default class UserModel implements IUser {
-  @Swagger.ApiModelProperty({
-    description: "Id of user",
-    required: false,
-  })
   public _id: string;
-
-  @Swagger.ApiModelProperty()
   public osu_id: string;
-
-  @Swagger.ApiModelProperty()
   public name: string;
-
-  @Swagger.ApiModelProperty()
   public active: boolean;
-
-  @Swagger.ApiModelProperty()
   public avatar_url: string;
-
-  @Swagger.ApiModelProperty()
   public banner_url?: string;
-
-  @Swagger.ApiModelProperty()
-  public availability: {
-    mods: boolean;
-    guest_diffs: boolean;
-    playtesting: boolean;
-  };
-
+  public availability: UserAvailability;
   public journeys: IJourney[];
-
-  @Swagger.ApiModelProperty()
   public community_role: string;
-
-  @Swagger.ApiModelProperty()
   public role: "admin" | "user" | "moderator";
-
   public preferences: ModeType[];
-
-  @Swagger.ApiModelProperty()
   public status: "available" | "do_not_disturb";
-
-  @Swagger.ApiModelProperty()
   public description: string;
-
   public queue: IJourney[];
 
-  constructor(schema: IUserSchema) {
-    this._id = schema.id;
-    this.osu_id = schema.osu_id;
-    this.name = schema.name;
-    this.active = schema.active;
-    this.avatar_url = schema.avatar_url;
-    this.banner_url = schema.banner_url;
-    this.availability = schema.availability;
-    this.journeys = schema.journeys;
-    this.community_role = schema.community_role;
-    this.role = schema.role;
-    this.preferences = schema.preferences;
-    this.status = schema.status;
-    this.description = schema.description;
-    this.queue = schema.queue;
+  constructor(document: IUserDocument) {
+    this._id = document.id;
+    this.osu_id = document.osu_id;
+    this.name = document.name;
+    this.active = document.active;
+    this.avatar_url = document.avatar_url;
+    this.banner_url = document.banner_url;
+    this.availability = new UserAvailability(document.availability);
+    this.journeys = document.journeys;
+    this.community_role = document.community_role;
+    this.role = document.role;
+    this.preferences = document.preferences;
+    this.status = document.status;
+    this.description = document.description;
+    this.queue = document.queue;
   }
 }

@@ -1,5 +1,0 @@
-{
-  "verbose": true,
-  "delay": 500,
-  "exec": "node --inspect -r dotenv/config --loader ts-node/esm --experimental-specifier-resolution=node ./app.ts"
-}

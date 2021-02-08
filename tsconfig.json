@@ -2,6 +2,7 @@
   "ts-node": {
     "files": true
   },
+  "exclude": ["node_modules/**"],
   "compilerOptions": {
     "module": "ESNext",
     "moduleResolution": "Node",
