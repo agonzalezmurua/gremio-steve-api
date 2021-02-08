@@ -17,8 +17,8 @@ function sign(payload: Partial<IUser>): string {
 /**
  * Attemps to verify JWT signature
  */
-export function verifyJwt(token: string): IUser {
-  return jwt.verify(token, SECRET);
+export function verifyJwt(token: string) {
+  return jwt.verify(token, SECRET) as IUser;
 }
 
 /**
