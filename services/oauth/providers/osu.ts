@@ -2,20 +2,17 @@ import axios from "axios";
 import consola from "consola";
 import config from "config";
 import { encode } from "querystring";
+import { Request, Response } from "express";
 
 import prefixes from "../../../constants/consola_prefixes";
-import User from "../../../providers/database/user";
+import User, { IUser } from "../../../providers/database/user";
 
 import { issueAuthentication } from "../authentication";
 
 const redirect_uri = config.get("web.url") + config.get("web.osu_callback");
 
-/**
- * Redirects
- * @param {import('express').Request} req
- * @param {import('express').Response} res
- */
-export function requestAuthorization(req, res) {
+/** Redirects */
+export function requestAuthorization(req: Request, res: Response) {
   const parameters = {
     client_id: config.get("osu.api.client_id"), // The Client ID you received when you registered
     redirect_uri: redirect_uri, // The URL in your application where users will be sent after authorization. This must match the registered Application Callback URL exactly.
@@ -35,11 +32,16 @@ export function requestAuthorization(req, res) {
 }
 
 /**
- *
- * @param {import('express').Request} req
- * @param {import('express').Response} res
+ * Request handler that returns a oauth flow response
  */
-export async function handleAuthentication(req, res) {
+export async function handleAuthentication(
+  req: Request,
+  res: Response<{
+    token_type: "Bearer";
+    expires_in: number;
+    access_token: string;
+  }>
+) {
   const client = axios.create({
     baseURL: config.get("osu.base_url"),
   });
@@ -71,23 +73,26 @@ export async function handleAuthentication(req, res) {
     });
 
     consola.debug(prefixes.oauth_osu, "obtaining user information");
-    const {
-      data: { id, username, avatar_url },
-    } = await client.get(`${config.get("osu.api.path")}/me`);
-
+    const { data: me } = await client.get(`${config.get("osu.api.path")}/me`);
     // Revoke current token to prevent further accidental usage
     consola.debug(prefixes.oauth_osu, "revoking osu token");
     await client.delete(`${config.get("osu.api.path")}/oauth/tokens/current`);
 
     consola.debug(prefixes.oauth_osu, "retrieving user from database");
-    let user = await User.findOne({ osu_id: id });
+    let user = await User.findOne({ osu_id: me.id }).exec();
 
     if (!user) {
       consola.debug(prefixes.oauth_osu, "user does not exist, creating");
       user = new User();
     }
 
-    user = Object.assign(user, { username, avatar_url, osu_id: id });
+    user = Object.assign(user, {
+      osu_id: me.id,
+      name: me.username,
+      avatar_url: me.avatar_url,
+      banner_url: me.custom_url || me.cover.url,
+    });
+
     await user.save();
 
     consola.debug(prefixes.oauth_osu, "issuing authentication token");
@@ -96,12 +101,12 @@ export async function handleAuthentication(req, res) {
         _id: user._id,
         osu_id: user.osu_id,
         avatar_url: user.avatar_url,
-        username: user.name,
+        name: user.name,
       })
     );
   } catch (error) {
     consola.error(error);
-    res.status(error.response.status);
-    res.json(error.response.data);
+    res.status(error.response ? error.response.status : 500);
+    res.json(error.response ? error.response.data : null);
   }
 }

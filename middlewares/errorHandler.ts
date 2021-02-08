@@ -1,14 +1,15 @@
+import { Request, Response, NextFunction } from "express";
 import consola from "consola";
 
 /**
  * Generic error handler for every appended request
- *
- * @param {Error} err
- * @param {import('express').Request} req
- * @param {import('express').Response} res
- * @param {import('express').NextFunction} next
  */
-export default function errorHandler(err, req, res, next) {
+export default function errorHandler(
+  err: any,
+  req: Request,
+  res: Response,
+  next: NextFunction
+) {
   if (res.headersSent) {
     return next(err);
   }

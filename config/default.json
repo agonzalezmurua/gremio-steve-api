@@ -3,7 +3,7 @@
     "port": 3010
   },
   "web": {
-    "osu_callback": "/oauth/osu/callback",
+    "osu_callback": "/auth/osu/callback",
     "url": "http://localhost:3000"
   },
   "cors": {
@@ -17,6 +17,7 @@
     }
   },
   "database": {
+    "connection_string": "mongodb://{config.domain}/{config.name}",
     "domain": "localhost:27017",
     "name": "gremio-steve"
   }

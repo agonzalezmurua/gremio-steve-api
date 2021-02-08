@@ -15,7 +15,7 @@ export interface IUser extends mongoose.Document {
   name: string;
   active: boolean;
   avatar_url: string;
-  banner_url: string;
+  banner_url?: string;
   availability: {
     mods: boolean;
     guest_diifs: boolean;
@@ -36,7 +36,7 @@ const UserSchema = new mongoose.Schema<IUser>(
     name: { type: String, required: true },
     active: { type: Boolean, default: true },
     avatar_url: { type: String, required: true },
-    banner_url: { type: String, required: true },
+    banner_url: String,
     availability: {
       mods: Boolean,
       guest_diffs: Boolean,
