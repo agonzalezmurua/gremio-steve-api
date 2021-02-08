@@ -1,7 +1,8 @@
-import express, { Application } from "express";
+import express = require("express");
+import { Application } from "express";
 import * as swagger from "swagger-express-ts";
 
-import packageJson from "../package.json";
+import packageJson = require("../package.json");
 
 export async function configure(app: Application) {
   app.use("/api-docs/swagger", express.static("static/swagger"));

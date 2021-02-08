@@ -1,9 +1,8 @@
-import * as consola from "consola";
-import * as colors from "config";
+import colors = require("colors");
 import cors from "cors";
-import bodyParser from "body-parser";
+import bodyParser = require("body-parser");
 import cookieParser from "cookie-parser";
-import * as config from "config";
+import config = require("config");
 
 import prefixes from "./constants/consola_prefixes";
 import { configure as configureOsuClient } from "./services/osu.configure";
@@ -13,6 +12,7 @@ import { configure as configureRoutes } from "./services/routes.configure";
 import { configure as configureSwagger } from "./services/swagger.configure";
 
 import trafficLogger from "./middlewares/trafficLogger";
+import consola from "consola";
 
 const handleError = (service) => (error) => {
   consola.error("failed to configure", service + ":\n", error);

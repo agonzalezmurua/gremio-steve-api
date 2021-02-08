@@ -1,4 +1,4 @@
-import * as colors from "colors";
+import colors = require("colors");
 
 /**
  * Prefix labels to ad more clarity to consola outputs

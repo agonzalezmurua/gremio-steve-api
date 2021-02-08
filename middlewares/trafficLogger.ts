@@ -1,5 +1,5 @@
-import * as consola from "consola";
-import * as colors from "config";
+const consola = require("consola");
+import colors = require("colors");
 import prefixes from "../constants/consola_prefixes";
 
 /**

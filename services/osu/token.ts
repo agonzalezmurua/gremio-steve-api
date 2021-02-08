@@ -1,9 +1,9 @@
 import axios from "axios";
 import { encode } from "querystring";
-import * as config from "config";
+import config = require("config");
 import prefixes from "../../constants/consola_prefixes";
 import { client } from "../osu.configure";
-import * as consola from "consola";
+const consola = require("consola");
 
 const oauth = axios.create({
   baseURL: config.get("osu.base_url"),

@@ -1,4 +1,4 @@
-import * as config from "config";
+import config = require("config");
 import { client } from "../osu.configure";
 
 export default {

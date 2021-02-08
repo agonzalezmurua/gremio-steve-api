@@ -1,7 +1,7 @@
-import * as consola from "consola";
-import * as mongoose from "mongoose";
-import * as colors from "config";
-import * as config from "config";
+import consola from "consola";
+import mongoose = require("mongoose");
+import colors = require("colors");
+import config = require("config");
 import format from "string-format";
 
 import prefixes from "../constants/consola_prefixes";

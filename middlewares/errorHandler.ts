@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from "express";
-import * as consola from "consola";
+const consola = require("consola");
 
 /**
  * Generic error handler for every appended request

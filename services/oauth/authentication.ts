@@ -1,4 +1,4 @@
-import jwt from "jsonwebtoken";
+import jwt = require("jsonwebtoken");
 import { IUserDocument } from "../../schemas/user";
 
 const SECRET = process.env.APP_AUTH_SECRET;
