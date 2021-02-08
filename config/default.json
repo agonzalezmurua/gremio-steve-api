@@ -1,0 +1,23 @@
+{
+  "app": {
+    "port": 3010
+  },
+  "web": {
+    "osu_callback": "/oauth/osu/callback",
+    "url": "http://localhost:3000"
+  },
+  "cors": {
+    "allowed_origin": "http://localhost:3000"
+  },
+  "osu": {
+    "base_url": "https://osu.ppy.sh",
+    "api": {
+      "client_id": 5165,
+      "path": "/api/v2"
+    }
+  },
+  "database": {
+    "domain": "localhost:27017",
+    "name": "gremio-steve"
+  }
+}
