@@ -1,6 +1,7 @@
 {
   "ts-node": {
-    "files": true
+    "files": true,
+    "compilerOptions": { "emitDecoratorMetadata": true }
   },
   "exclude": ["node_modules/**"],
   "compilerOptions": {

@@ -1,7 +1,11 @@
+import { ApiModel, ApiModelProperty } from "swagger-express-ts";
 import { ModeType, IBeatmap } from "../schemas/beatmap";
 import { IJourney, IJourneyDocument, IMetadata } from "../schemas/journey";
 import { IUser } from "../schemas/user";
 
+@ApiModel({
+  name: "UserMetadata",
+})
 class Metadata implements IMetadata {
   public genre: string;
   public bpm: number[];
@@ -15,9 +19,13 @@ class Metadata implements IMetadata {
     this.duration = document.duration;
   }
 }
-
+@ApiModel({
+  name: "Journey",
+})
 class Journey implements IJourney {
+  @ApiModelProperty()
   public _id: string;
+
   public title: string;
   public artist: string;
   public organizer: IUser;
