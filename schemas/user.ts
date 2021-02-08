@@ -2,13 +2,19 @@ import * as mongoose from "mongoose";
 import mongoose_fuzzy_searching = require("mongoose-fuzzy-searching");
 
 import { IJourney } from "./journey";
-import { ModeType, Modes } from "./beatmap";
+import { BeatmapModes } from "./beatmap";
+import { Utils } from "../types/mongoose_aux";
 
-export const UserRoles = {
-  admin: "admin",
-  user: "user",
-  moderator: "moderator",
-};
+export enum UserRoles {
+  admin = "admin",
+  user = "user",
+  moderator = "moderator",
+}
+
+export enum UserStatus {
+  available = "available",
+  do_not_disturb = "do_not_disturb",
+}
 
 export interface IAvailability {
   mods: boolean;
@@ -16,6 +22,12 @@ export interface IAvailability {
   playtesting: boolean;
 }
 
+export interface IUserPreferences {
+  std: boolean;
+  taiko: boolean;
+  ctb: boolean;
+  mania: boolean;
+}
 export interface IUser {
   osu_id: string;
   name: string;
@@ -25,53 +37,60 @@ export interface IUser {
   availability: IAvailability;
   journeys: IJourney[];
   community_role: string;
-  role: "admin" | "user" | "moderator";
-  preferences: ModeType[];
-  status: "available" | "do_not_disturb";
+  role: UserRoles;
+  preferences: IUserPreferences;
+  status: UserStatus;
   description: string;
   queue: IJourney[];
 }
 
 export interface IUserDocument extends IUser, mongoose.Document {}
 
-const UserSchema = new mongoose.Schema<IUserDocument>(
-  {
-    osu_id: { type: String, required: true },
-    name: { type: String, required: true },
-    active: { type: Boolean, default: true },
-    avatar_url: { type: String, required: true },
-    banner_url: String,
-    availability: {
-      mods: Boolean,
-      guest_diffs: Boolean,
-      playtesting: Boolean,
-    },
-    journeys: {
-      type: [{ type: mongoose.Schema.Types.ObjectId, ref: "Journey" }],
-    },
-    community_role: String,
-    role: {
-      type: String,
-      enum: [UserRoles.admin, UserRoles.moderator, UserRoles.user],
-      default: UserRoles.user,
-      select: false,
-    },
-    preferences: {
-      type: String,
-      enum: [Modes.ctb, Modes.mania, Modes.std, Modes.taiko],
-    },
-    description: String,
-    queue: { type: [{ type: mongoose.Schema.Types.ObjectId, ref: "Journey" }] },
+const UserSchemaFields: Utils.SchemaFields<IUser> = {
+  osu_id: { type: String, required: true },
+  name: { type: String, required: true },
+  active: { type: Boolean, default: true },
+  avatar_url: { type: String, required: true },
+  banner_url: String,
+  availability: {
+    mods: { type: Boolean, default: false },
+    guest_diffs: { type: Boolean, default: false },
+    playtesting: { type: Boolean, default: false },
   },
-  {
-    timestamps: { createdAt: "created_at", updatedAt: "updated_at" },
-  }
-);
+  journeys: {
+    type: [{ type: mongoose.Schema.Types.ObjectId, ref: "Journey" }],
+  },
+  community_role: String,
+  role: {
+    type: String,
+    enum: Object.values(UserRoles),
+    default: UserRoles.user,
+  },
+  preferences: {
+    std: { type: Boolean, default: false },
+    taiko: { type: Boolean, default: false },
+    ctb: { type: Boolean, default: false },
+    mania: { type: Boolean, default: false },
+  },
+  description: String,
+  queue: {
+    type: [{ type: mongoose.Schema.Types.ObjectId, ref: "Journey" }],
+  },
+  status: {
+    type: String,
+    enum: Object.values(UserStatus),
+    default: UserStatus.available,
+  },
+};
+
+const UserSchema = new mongoose.Schema<IUserDocument>(UserSchemaFields, {
+  timestamps: { createdAt: "created_at", updatedAt: "updated_at" },
+});
 
 UserSchema.plugin(mongoose_fuzzy_searching, {
   fields: [
     {
-      name: "username",
+      name: "name",
     },
   ],
 });

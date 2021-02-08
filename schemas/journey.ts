@@ -1,26 +1,18 @@
 import * as mongoose from "mongoose";
 import mongoose_fuzzy_searching = require("mongoose-fuzzy-searching");
+import { Utils } from "../types/mongoose_aux";
 
-import { IBeatmap, Modes, ModeType } from "./beatmap";
+import { IBeatmap, BeatmapModes } from "./beatmap";
 import { IUser } from "./user";
 
-type JourneyStatus =
-  | "pending"
-  | "open"
-  | "ready"
-  | "alert"
-  | "problem"
-  | "closed";
-
-export const Statuses = {
-  pending: "pending",
-  open: "open",
-  ready: "ready",
-  alert: "alert",
-  problem: "problem",
-  closed: "closed",
-};
-
+export enum JourneyStatus {
+  pending = "pending",
+  open = "open",
+  ready = "ready",
+  alert = "alert",
+  problem = "problem",
+  closed = "closed",
+}
 export interface IMetadata {
   genre: string;
   bpm: number[];
@@ -35,7 +27,7 @@ export interface IJourney {
   thumbnail_url: string;
   banner_url: string;
   metadata: IMetadata;
-  modes: ModeType[];
+  modes: BeatmapModes[];
   description?: string;
   status: JourneyStatus;
   private: boolean;
@@ -45,44 +37,41 @@ export interface IJourney {
 
 export interface IJourneyDocument extends IJourney, mongoose.Document {}
 
-const JourneySchema = new mongoose.Schema<IJourneyDocument>(
-  {
-    title: String,
-    artist: String,
-    organizer: { type: mongoose.Schema.Types.ObjectId, required: true },
-    thumbnail_url: String,
-    banner_url: String,
-    metadata: {
-      genre: String,
-      bpm: [Number],
-      closure: { type: Date, required: false },
-      duration: Number,
-    },
-    modes: {
-      type: [String],
-      enum: [Modes.ctb, Modes.mania, Modes.std, Modes.taiko],
-    },
-    description: String,
-    status: {
-      type: String,
-      enum: [
-        Statuses.alert,
-        Statuses.closed,
-        Statuses.open,
-        Statuses.pending,
-        Statuses.problem,
-        Statuses.ready,
-      ],
-    },
-    private: Boolean,
-    beatmaps: {
-      type: [{ type: mongoose.Schema.Types.ObjectId, required: true }],
-    },
-    osu_link: {
-      type: String,
-      required: false,
-    },
+const JourneySchemaFields: Utils.SchemaFields<IJourney> = {
+  title: String,
+  artist: String,
+  organizer: { type: mongoose.Schema.Types.ObjectId, required: true },
+  thumbnail_url: String,
+  banner_url: String,
+  metadata: {
+    genre: String,
+    bpm: [Number],
+    closure: { type: Date, required: false },
+    duration: Number,
   },
+  modes: {
+    type: [String],
+    enum: Object.values(BeatmapModes),
+    default: [],
+  },
+  description: String,
+  status: {
+    type: String,
+    enum: Object.values(JourneyStatus),
+    default: JourneyStatus.pending,
+  },
+  private: Boolean,
+  beatmaps: {
+    type: [{ type: mongoose.Schema.Types.ObjectId, required: true }],
+  },
+  osu_link: {
+    type: String,
+    required: false,
+  },
+};
+
+const JourneySchema = new mongoose.Schema<IJourneyDocument>(
+  JourneySchemaFields,
   { timestamps: { createdAt: "created_at", updatedAt: "updated_at" } }
 );
 

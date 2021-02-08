@@ -1,14 +1,14 @@
 import * as mongoose from "mongoose";
 import { Request, Response } from "express";
-
-import JourneySchema, { IJourneyDocument } from "../schemas/journey";
-import BaseController from "./_base";
-import JourneyModel from "../models/journey";
 import {
   ApiOperationGet,
   ApiPath,
   SwaggerDefinitionConstant,
 } from "swagger-express-ts";
+
+import JourneySchema, { IJourneyDocument } from "../schemas/journey";
+import BaseController from "./_base";
+import JourneyModel from "../models/journey";
 
 const Journey = mongoose.model("Journey", JourneySchema);
 
