@@ -7,10 +7,11 @@ import {
 } from "swagger-express-ts";
 
 import BaseController from "./_base";
-import Model from "../models/user";
+
+import User from "../models/user";
 import UserSchema, { IUserDocument } from "../schemas/user";
 
-const User = mongoose.model("User", UserSchema);
+const MongooseModel = mongoose.model("User", UserSchema);
 
 @ApiPath({
   path: "/users",
@@ -18,13 +19,16 @@ const User = mongoose.model("User", UserSchema);
 })
 class UserController extends BaseController<IUserDocument> {
   constructor() {
-    super(User);
+    super(MongooseModel);
   }
 
   @ApiOperationGet({
+    summary: "Get users",
+    description: "Obtains a list of users, searching based on username",
     parameters: {
       query: {
         search: {
+          description: "Can be the username",
           allowEmptyValue: true,
           type: SwaggerDefinitionConstant.STRING,
         },
@@ -42,10 +46,10 @@ class UserController extends BaseController<IUserDocument> {
       query: { search = "" },
     } = req;
 
-    User.fuzzySearch(search as string)
+    MongooseModel.fuzzySearch(search as string)
       .select("-confidenceScore")
       .then((users) => {
-        res.json(users.map((schema) => new Model(schema)));
+        res.json(users.map((schema) => new User(schema)));
       });
   }
 }

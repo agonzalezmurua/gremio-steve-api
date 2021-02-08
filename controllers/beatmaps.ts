@@ -8,16 +8,16 @@ import {
 
 import BaseController from "./_base";
 
-import Journey from "../models/journey";
-import JourneySchema, { IJourneyDocument } from "../schemas/journey";
+import Beatmap from "../models/beatmap";
+import BeatmapSchema, { IBeatmapDocument } from "../schemas/beatmap";
 
-const MongooseModel = mongoose.model("Journey", JourneySchema);
+const MongooseModel = mongoose.model("Beatmap", BeatmapSchema);
 
 @ApiPath({
-  path: "/journey",
-  name: "Journeys",
+  path: "/beatmaps",
+  name: "Beatmaps",
 })
-class JourneyController extends BaseController<IJourneyDocument> {
+class BeatmapController extends BaseController<IBeatmapDocument> {
   constructor() {
     super(MongooseModel);
   }
@@ -25,7 +25,7 @@ class JourneyController extends BaseController<IJourneyDocument> {
   @ApiOperationGet({
     responses: {
       200: {
-        model: "Journey",
+        model: "Beatmap",
         type: SwaggerDefinitionConstant.ARRAY,
       },
     },
@@ -39,10 +39,10 @@ class JourneyController extends BaseController<IJourneyDocument> {
       .fuzzySearch(search as string)
       .select("-confidenceScore")
       .exec()
-      .then((journeys) =>
-        res.json(journeys.map((journey) => new Journey(journey)))
+      .then((beatmaps) =>
+        res.json(beatmaps.map((beatmap) => new Beatmap(beatmap)))
       );
   }
 }
 
-export default new JourneyController();
+export default new BeatmapController();

@@ -9,7 +9,7 @@ export enum BeatmapModes {
   mania = "mania",
 }
 
-export enum Difficulties {
+export enum BeatmapDifficulty {
   easy = "easy",
   normal = "normal",
   hard = "hard",
@@ -18,7 +18,7 @@ export enum Difficulties {
   expert_plus = "expert+",
 }
 
-export enum Statuses {
+export enum BeatmapStatus {
   ready = "ready",
   pending = "pending",
   alert = "alert",
@@ -28,12 +28,12 @@ export enum Statuses {
 export interface IBeatmap {
   name: string;
   mode: BeatmapModes;
-  difficulty: "easy" | "normal" | "hard" | "insane" | "expert" | "expert+";
-  status: "ready" | "pending" | "alert" | "problem";
+  difficulty: BeatmapDifficulty;
+  status: BeatmapStatus;
   assignee?: IUser;
 }
 
-export interface IBeatmapSchema extends mongoose.Document<IBeatmap> {}
+export interface IBeatmapDocument extends IBeatmap, mongoose.Document {}
 
 const BeatmapSchemaFields: Utils.SchemaFields<IBeatmap> = {
   name: String,
@@ -43,11 +43,11 @@ const BeatmapSchemaFields: Utils.SchemaFields<IBeatmap> = {
   },
   difficulty: {
     type: String,
-    enum: Object.values(Difficulties),
+    enum: Object.values(BeatmapDifficulty),
   },
   status: {
     type: String,
-    enum: Object.values(Statuses),
+    enum: Object.values(BeatmapStatus),
   },
   assignee: {
     type: mongoose.Schema.Types.ObjectId,
@@ -55,8 +55,11 @@ const BeatmapSchemaFields: Utils.SchemaFields<IBeatmap> = {
   },
 };
 
-const BeatmapSchema = new mongoose.Schema<IBeatmapSchema>(BeatmapSchemaFields, {
-  timestamps: { createdAt: "created_at", updatedAt: "updated_at" },
-});
+const BeatmapSchema = new mongoose.Schema<IBeatmapDocument>(
+  BeatmapSchemaFields,
+  {
+    timestamps: { createdAt: "created_at", updatedAt: "updated_at" },
+  }
+);
 
 export default BeatmapSchema;
