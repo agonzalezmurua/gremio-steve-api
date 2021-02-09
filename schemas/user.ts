@@ -2,10 +2,9 @@ import * as mongoose from "mongoose";
 import mongoose_fuzzy_searching = require("mongoose-fuzzy-searching");
 
 import { IJourney } from "./journey";
-import { BeatmapModes } from "./beatmap";
 import { Utils } from "../types/mongoose_aux";
 
-export enum UserRoles {
+export enum UserRole {
   admin = "admin",
   user = "user",
   moderator = "moderator",
@@ -37,10 +36,10 @@ export interface IUser {
   availability: IAvailability;
   journeys: IJourney[];
   community_role: string;
-  role: UserRoles;
+  role: UserRole;
   preferences: IUserPreferences;
   status: UserStatus;
-  description: string;
+  description?: string;
   queue: IJourney[];
 }
 
@@ -63,8 +62,8 @@ const UserSchemaFields: Utils.SchemaFields<IUser> = {
   community_role: String,
   role: {
     type: String,
-    enum: Object.values(UserRoles),
-    default: UserRoles.user,
+    enum: Object.values(UserRole),
+    default: UserRole.user,
   },
   preferences: {
     std: { type: Boolean, default: false },

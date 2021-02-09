@@ -3,10 +3,13 @@ import {
   ApiModelProperty,
   SwaggerDefinitionConstant,
 } from "swagger-express-ts";
-import { IBeatmap, BeatmapModes } from "../schemas/beatmap";
+
+import { IBeatmap, BeatmapModes } from "../schemas/journey.beatmap";
 import { IJourney, IJourneyDocument, JourneyStatus } from "../schemas/journey";
 import { IUser } from "../schemas/user";
+
 import { JourneyMetadata } from "./journey.metadata";
+import Beatmap from "./journey.beatmap";
 
 @ApiModel()
 class Journey implements IJourney {
@@ -21,8 +24,8 @@ class Journey implements IJourney {
     this.modes = document.modes;
     this.description = document.description;
     this.status = document.status;
-    this.private = document.private;
-    this.beatmaps = document.beatmaps;
+    this.is_private = document.is_private;
+    this.beatmaps = document.beatmaps.map((beatmap) => new Beatmap(beatmap));
     this.osu_link = document.osu_link;
   }
 
@@ -44,7 +47,7 @@ class Journey implements IJourney {
   @ApiModelProperty({ required: true })
   public banner_url: string;
 
-  @ApiModelProperty({ model: "JourneyMetadata" })
+  @ApiModelProperty({ model: "Journey.Metadata" })
   public metadata: JourneyMetadata;
 
   @ApiModelProperty({
@@ -61,12 +64,12 @@ class Journey implements IJourney {
   public status: JourneyStatus;
 
   @ApiModelProperty()
-  public private: boolean;
+  public is_private: boolean;
 
   @ApiModelProperty({
     type: SwaggerDefinitionConstant.ARRAY,
     itemType: SwaggerDefinitionConstant.OBJECT,
-    model: "Beatmap",
+    model: "Journey.Beatmap",
   })
   public beatmaps: IBeatmap[];
 

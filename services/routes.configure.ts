@@ -3,7 +3,6 @@ import errorHandler from "../middlewares/errorHandler";
 
 import Users from "../routes/users";
 import Journeys from "../routes/journeys";
-import Beatmaps from "../routes/beatmaps";
 
 /**
  * Configures api routes
@@ -14,7 +13,6 @@ export async function configure(app) {
 
   router.use("/users", Users);
   router.use("/journeys", Journeys);
-  router.use("/beatmaps", Beatmaps);
 
   router.use(errorHandler);
   app.use(router);

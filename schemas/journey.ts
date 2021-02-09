@@ -2,7 +2,7 @@ import * as mongoose from "mongoose";
 import mongoose_fuzzy_searching = require("mongoose-fuzzy-searching");
 import { Utils } from "../types/mongoose_aux";
 
-import { IBeatmap, BeatmapModes } from "./beatmap";
+import BeatmapSchema, { IBeatmap, BeatmapModes } from "./journey.beatmap";
 import { IUser } from "./user";
 
 export enum JourneyStatus {
@@ -16,7 +16,7 @@ export enum JourneyStatus {
 export interface IMetadata {
   genre: string;
   bpm: number[];
-  closure?: string;
+  closure?: Date;
   duration: number;
 }
 
@@ -30,7 +30,7 @@ export interface IJourney {
   modes: BeatmapModes[];
   description?: string;
   status: JourneyStatus;
-  private: boolean;
+  is_private: boolean;
   beatmaps: IBeatmap[];
   osu_link?: string;
 }
@@ -60,9 +60,9 @@ const JourneySchemaFields: Utils.SchemaFields<IJourney> = {
     enum: Object.values(JourneyStatus),
     default: JourneyStatus.pending,
   },
-  private: Boolean,
+  is_private: Boolean,
   beatmaps: {
-    type: [{ type: mongoose.Schema.Types.ObjectId, required: true }],
+    type: [{ type: BeatmapSchema, required: true }],
   },
   osu_link: {
     type: String,

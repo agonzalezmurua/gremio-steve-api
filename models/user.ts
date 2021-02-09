@@ -5,7 +5,7 @@ import {
 } from "swagger-express-ts";
 
 import { IJourneyDocument } from "../schemas/journey";
-import { IUser, IUserDocument, UserRoles, UserStatus } from "../schemas/user";
+import { IUser, IUserDocument, UserRole, UserStatus } from "../schemas/user";
 
 import UserPreferences from "./user.preferences";
 import { UserAvailability } from "./user.availability";
@@ -34,36 +34,52 @@ export default class User implements IUser {
     );
   }
 
-  @ApiModelProperty()
+  @ApiModelProperty({
+    required: true,
+  })
   public _id: string;
 
-  @ApiModelProperty()
+  @ApiModelProperty({
+    required: true,
+  })
   public osu_id: string;
 
-  @ApiModelProperty()
+  @ApiModelProperty({
+    required: true,
+  })
   public name: string;
 
   @ApiModelProperty()
   public active: boolean;
 
-  @ApiModelProperty()
+  @ApiModelProperty({
+    required: true,
+  })
   public avatar_url: string;
 
-  @ApiModelProperty()
+  @ApiModelProperty({
+    required: true,
+  })
   public banner_url?: string;
 
+  @ApiModelProperty({
+    model: "User.Availability",
+    required: true,
+  })
   public availability: UserAvailability;
 
   @ApiModelProperty({ model: "Journey", type: SwaggerDefinitionConstant.ARRAY })
   public journeys: Journey[];
 
-  @ApiModelProperty()
+  @ApiModelProperty({
+    required: true,
+  })
   public community_role: string;
 
-  @ApiModelProperty({ enum: Object.values(UserRoles) })
-  public role: UserRoles;
+  @ApiModelProperty({ enum: Object.values(UserRole), required: true })
+  public role: UserRole;
 
-  @ApiModelProperty({ model: "UserPreferences" })
+  @ApiModelProperty({ model: "User.Preferences", required: true })
   public preferences: {
     std: boolean;
     taiko: boolean;
@@ -71,11 +87,14 @@ export default class User implements IUser {
     mania: boolean;
   };
 
-  @ApiModelProperty()
+  @ApiModelProperty({
+    required: true,
+    enum: Object.values(UserStatus),
+  })
   public status: UserStatus;
 
   @ApiModelProperty()
-  public description: string;
+  public description?: string;
 
   @ApiModelProperty({ model: "Journey", type: SwaggerDefinitionConstant.ARRAY })
   public queue: Journey[];

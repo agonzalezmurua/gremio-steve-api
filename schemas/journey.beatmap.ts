@@ -56,10 +56,7 @@ const BeatmapSchemaFields: Utils.SchemaFields<IBeatmap> = {
 };
 
 const BeatmapSchema = new mongoose.Schema<IBeatmapDocument>(
-  BeatmapSchemaFields,
-  {
-    timestamps: { createdAt: "created_at", updatedAt: "updated_at" },
-  }
+  BeatmapSchemaFields
 );
 
 export default BeatmapSchema;

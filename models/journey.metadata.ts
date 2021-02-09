@@ -6,21 +6,27 @@ import {
 import { IMetadata } from "../schemas/journey";
 
 @ApiModel({
-  name: "JourneyMetadata",
+  name: "Journey.Metadata",
 })
 export class JourneyMetadata implements IMetadata {
-  @ApiModelProperty()
+  @ApiModelProperty({
+    required: true,
+  })
   public genre: string;
 
   @ApiModelProperty({
     type: SwaggerDefinitionConstant.ARRAY,
     itemType: SwaggerDefinitionConstant.NUMBER,
+    required: true,
     description: "Represents a range of BPM that the song has",
   })
   public bpm: number[];
 
-  @ApiModelProperty()
-  public closure?: string;
+  @ApiModelProperty({
+    type: SwaggerDefinitionConstant.STRING,
+    description: "ISO String of closure date",
+  })
+  public closure?: Date;
 
   @ApiModelProperty()
   public duration: number;

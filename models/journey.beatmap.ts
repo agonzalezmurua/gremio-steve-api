@@ -9,12 +9,14 @@ import {
   BeatmapDifficulty,
   BeatmapModes,
   BeatmapStatus,
-} from "../schemas/beatmap";
+} from "../schemas/journey.beatmap";
 import { IUser } from "../schemas/user";
 
-@ApiModel()
+@ApiModel({
+  name: "Journey.Beatmap",
+})
 export default class Beatmap implements IBeatmap {
-  constructor(document: IBeatmapDocument) {
+  constructor(document: IBeatmap) {
     this.mode = document.mode;
     this.difficulty = document.difficulty;
     this.status = document.status;
@@ -31,7 +33,7 @@ export default class Beatmap implements IBeatmap {
   public mode: BeatmapModes;
 
   @ApiModelProperty({
-    enum: Object(BeatmapDifficulty),
+    enum: Object.values(BeatmapDifficulty),
     required: true,
   })
   public difficulty: BeatmapDifficulty;

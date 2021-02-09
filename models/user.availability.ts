@@ -1,7 +1,9 @@
 import { ApiModel, ApiModelProperty } from "swagger-express-ts";
 import { IAvailability } from "../schemas/user";
 
-@ApiModel()
+@ApiModel({
+  name: "User.Availability",
+})
 export class UserAvailability implements IAvailability {
   constructor(document: IAvailability) {
     this.mods = document.mods;

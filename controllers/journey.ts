@@ -1,5 +1,5 @@
 import * as mongoose from "mongoose";
-import { Request, Response } from "express";
+import { NextFunction, Request, Response } from "express";
 import {
   ApiOperationGet,
   ApiOperationPost,
@@ -31,7 +31,7 @@ class JourneyController extends BaseController<IJourneyDocument> {
       },
     },
   })
-  public search(req: Request, res: Response) {
+  public search(req: Request, res: Response, next: NextFunction) {
     const {
       query: { search = "" },
     } = req;
@@ -41,7 +41,36 @@ class JourneyController extends BaseController<IJourneyDocument> {
       .exec()
       .then((journeys) =>
         res.json(journeys.map((journey) => new Journey(journey)))
-      );
+      )
+      .catch((error) => {
+        next(error);
+      });
+  }
+
+  @ApiOperationGet({
+    path: "/:id",
+    parameters: {
+      path: {
+        id: { type: SwaggerDefinitionConstant.STRING },
+      },
+    },
+    responses: {
+      200: {
+        model: "Journey",
+      },
+      404: {},
+    },
+  })
+  public getOneById(
+    { params: { id } }: Request<{ id: string }>,
+    res: Response,
+    next: NextFunction
+  ) {
+    MongooseModel.findById(id)
+      .populate("organizer beatmaps")
+      .exec()
+      .then((journey) => res.json(journey))
+      .catch((error) => next(error));
   }
 
   @ApiOperationPost({
@@ -60,19 +89,44 @@ class JourneyController extends BaseController<IJourneyDocument> {
       ensureAuthenticated: [],
     },
   })
-  public create(req: Request<null, null, IJourney>, res: Response) {
+  public create(
+    { body, user }: Request<null, null, IJourney>,
+    res: Response,
+    next: NextFunction
+  ) {
     const {
+      title,
+      artist,
+      thumbnail_url,
+      banner_url,
+      metadata: { bpm, duration, genre, closure },
+      modes = [],
+      description,
+      is_private,
+      beatmaps = [],
+      osu_link,
+    } = body;
+    new MongooseModel({
+      organizer: user._id,
       artist,
       banner_url,
-      beatmaps = [],
-      metadata,
-      modes = [],
-    } = req.body;
-    new MongooseModel({
-      organized: req.user._id,
+      title,
+      thumbnail_url,
+      beatmaps,
+      metadata: {
+        bpm: bpm,
+        duration: duration,
+        genre: genre,
+        closure: closure ? new Date(closure) : null,
+      },
+      modes,
+      is_private,
+      osu_link,
+      description,
     })
       .save({ validateBeforeSave: true })
-      .then((journey) => res.json(journey));
+      .then((journey) => res.json(journey))
+      .catch((error) => next(error));
   }
 }
 

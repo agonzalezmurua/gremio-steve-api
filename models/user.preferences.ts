@@ -1,7 +1,9 @@
 import { ApiModel, ApiModelProperty } from "swagger-express-ts";
 import { IUser, IUserPreferences } from "../schemas/user";
 
-@ApiModel()
+@ApiModel({
+  name: "User.Preferences",
+})
 class UserPreferences implements IUserPreferences {
   constructor(preferences: IUser["preferences"]) {
     this.std = preferences.std;
