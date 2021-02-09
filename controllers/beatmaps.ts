@@ -35,8 +35,7 @@ class BeatmapController extends BaseController<IBeatmapDocument> {
       query: { search = "" },
     } = req;
 
-    this.model
-      .fuzzySearch(search as string)
+    MongooseModel.fuzzySearch(search as string)
       .select("-confidenceScore")
       .exec()
       .then((beatmaps) =>
