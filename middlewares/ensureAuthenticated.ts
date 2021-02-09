@@ -1,3 +1,4 @@
+import { Request, Response, NextFunction } from "express";
 import { verifyJwt } from "../services/oauth/authentication";
 import { UnauthenticatedError, UnauthorizedError } from "../utils/errors";
 
@@ -6,11 +7,12 @@ import { UnauthenticatedError, UnauthorizedError } from "../utils/errors";
  * access token
  *
  * And populates the request object with `req.user` if there is any valid session
- * @param {import('express').Request} req
- * @param {import('express').Response} res
- * @param {import('express').NextFunction} next
  */
-export default function ensureAuthenticated(req, res, next) {
+export default function ensureAuthenticated(
+  req: Request,
+  res: Response,
+  next: NextFunction
+) {
   const authorization = req.header("authorization");
 
   if (!authorization) {
