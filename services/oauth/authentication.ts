@@ -17,7 +17,7 @@ function sign(payload: Steve.LoggedUser): string {
 /**
  * Attemps to verify JWT signature
  */
-export function verifyJwt(token: string): string | unknown {
+export function verifyJwt(token: string): Steve.LoggedUser {
   return jwt.verify(token, SECRET) as Steve.LoggedUser;
 }
 

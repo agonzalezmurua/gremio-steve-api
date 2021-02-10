@@ -23,7 +23,7 @@ class UserController extends BaseController<IUserDocument> {
   }
 
   @ApiOperationGet({
-    summary: "Get users",
+    summary: "Find users",
     description: "Obtains a list of users, searching based on username",
     parameters: {
       query: {

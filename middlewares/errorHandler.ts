@@ -1,4 +1,4 @@
-import { Request, Response } from "express";
+import { NextFunction, Request, Response } from "express";
 import consola from "consola";
 
 /**
@@ -7,12 +7,15 @@ import consola from "consola";
 export default function errorHandler(
   err: { [key: string]: unknown },
   req: Request,
-  res: Response
+  res: Response,
+  next: NextFunction
 ): void {
   const error: { [key: string]: string | unknown } = {
-    message: err.message || "NO.MESSAGE",
     name: err.name,
+    message: err.message || "NO.MESSAGE",
   };
+
+  consola.error(error);
 
   if (err.name === "ValidationError") {
     error.validations = err.errors;
@@ -20,12 +23,12 @@ export default function errorHandler(
 
   if (!res.headersSent) {
     switch (err.name) {
+      case "CastError":
       case "ValidationError":
+        error.name = "Bad request";
+        error.message = "Invalid parameters";
         error.validations = err.errors;
         res.status(400);
-        break;
-      case "UnauthenticatedError":
-        res.status(401);
         break;
       case "UnauthorizedError":
         res.status(403);
@@ -34,11 +37,11 @@ export default function errorHandler(
         res.status(500);
         break;
     }
+    res.json({
+      error: error,
+    });
+    return;
   }
 
-  consola.error(error);
-
-  res.json({
-    error: error,
-  });
+  next();
 }

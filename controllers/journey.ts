@@ -1,6 +1,7 @@
 import * as mongoose from "mongoose";
 import { NextFunction, Request, Response } from "express";
 import {
+  ApiOperationDelete,
   ApiOperationGet,
   ApiOperationPost,
   ApiPath,
@@ -26,6 +27,8 @@ class JourneyController extends BaseController<IJourneyDocument> {
   }
 
   @ApiOperationGet({
+    description: "Search a list of journeys based on a string",
+    summary: "Serach for journeys",
     responses: {
       200: {
         model: "Journey",
@@ -52,6 +55,8 @@ class JourneyController extends BaseController<IJourneyDocument> {
 
   @ApiOperationGet({
     path: "/mine",
+    description: "Get the journeys that were organized by the current user",
+    summary: "Get my journeys",
     security: {
       bearerAuth: [],
     },
@@ -85,12 +90,12 @@ class JourneyController extends BaseController<IJourneyDocument> {
       404: {},
     },
   })
-  public findOneById(
-    { params: { id } }: Request<{ id: string }>,
+  public getOneById(
+    req: Request<{ id: string }>,
     res: Response,
     next: NextFunction
   ) {
-    Model.findById(id)
+    Model.findById(req.params.id)
       .populate("organizer")
       .exec()
       .then((journey) => res.json(journey))
@@ -98,6 +103,7 @@ class JourneyController extends BaseController<IJourneyDocument> {
   }
 
   @ApiOperationPost({
+    description: "Create a new journey",
     parameters: {
       body: {
         model: "Journey",
@@ -151,7 +157,10 @@ class JourneyController extends BaseController<IJourneyDocument> {
       .catch((error) => next(error));
   }
 
-  @ApiOperationPost({
+  @ApiOperationDelete({
+    description: "Delete a journey based on id",
+    summary: "Delete a journey",
+    path: "/:id",
     parameters: {
       path: {
         id: {
