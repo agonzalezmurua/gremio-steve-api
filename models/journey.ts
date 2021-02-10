@@ -4,7 +4,11 @@ import {
   SwaggerDefinitionConstant,
 } from "swagger-express-ts";
 
-import { IBeatmap, BeatmapModes } from "../schemas/journey.beatmap";
+import {
+  IBeatmap,
+  IBeatmapDocument,
+  BeatmapModes,
+} from "../schemas/journey.beatmap";
 import { IJourney, IJourneyDocument, JourneyStatus } from "../schemas/journey";
 import { IUser } from "../schemas/user";
 
@@ -25,7 +29,9 @@ class Journey implements IJourney {
     this.description = document.description;
     this.status = document.status;
     this.is_private = document.is_private;
-    this.beatmaps = document.beatmaps.map((beatmap) => new Beatmap(beatmap));
+    this.beatmaps = document.beatmaps.map(
+      (beatmap) => new Beatmap(beatmap as IBeatmapDocument)
+    );
     this.osu_link = document.osu_link;
   }
 
