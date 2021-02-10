@@ -14,7 +14,7 @@ import Beatmap from "./journey.beatmap";
 @ApiModel()
 class Journey implements IJourney {
   constructor(document: IJourneyDocument) {
-    this._id = document._id;
+    this.id = document.id;
     this.title = document.title;
     this.artist = document.artist;
     this.organizer = document.organizer;
@@ -30,7 +30,7 @@ class Journey implements IJourney {
   }
 
   @ApiModelProperty()
-  public _id: string;
+  public id: string;
 
   @ApiModelProperty({ required: true })
   public title: string;

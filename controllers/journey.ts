@@ -11,8 +11,10 @@ import BaseController from "./_base";
 
 import Journey from "../models/journey";
 import JourneySchema, { IJourney, IJourneyDocument } from "../schemas/journey";
+import authenticationResponses from "../constants/swagger.authenticationResponses";
+import { UnauthorizedError } from "../utils/errors";
 
-const MongooseModel = mongoose.model("Journey", JourneySchema);
+const Model = mongoose.model("Journey", JourneySchema);
 
 @ApiPath({
   path: "/journeys",
@@ -20,7 +22,7 @@ const MongooseModel = mongoose.model("Journey", JourneySchema);
 })
 class JourneyController extends BaseController<IJourneyDocument> {
   constructor() {
-    super(MongooseModel);
+    super(Model);
   }
 
   @ApiOperationGet({
@@ -36,8 +38,9 @@ class JourneyController extends BaseController<IJourneyDocument> {
       query: { search = "" },
     } = req;
 
-    MongooseModel.fuzzySearch(search as string)
+    Model.fuzzySearch(search as string)
       .select("-confidenceScore")
+      .populate({ path: "organizer", select: "-journeys -queue" })
       .exec()
       .then((journeys) =>
         res.json(journeys.map((journey) => new Journey(journey)))
@@ -48,7 +51,28 @@ class JourneyController extends BaseController<IJourneyDocument> {
   }
 
   @ApiOperationGet({
+    path: "/mine",
+    security: {
+      bearerAuth: [],
+    },
+    responses: {
+      200: {
+        model: "Journey",
+        type: SwaggerDefinitionConstant.ARRAY,
+      },
+    },
+  })
+  public getMines({ user }: Request, res: Response, next: NextFunction) {
+    Model.find({ organizer: user.id })
+      .exec()
+      .then((journeys) => res.json(journeys.map((j) => new Journey(j))))
+      .catch((e) => next(e));
+  }
+
+  @ApiOperationGet({
     path: "/:id",
+    description: "Find one journey based on ID",
+    summary: "Find one by id",
     parameters: {
       path: {
         id: { type: SwaggerDefinitionConstant.STRING },
@@ -61,13 +85,13 @@ class JourneyController extends BaseController<IJourneyDocument> {
       404: {},
     },
   })
-  public getOneById(
+  public findOneById(
     { params: { id } }: Request<{ id: string }>,
     res: Response,
     next: NextFunction
   ) {
-    MongooseModel.findById(id)
-      .populate("organizer beatmaps")
+    Model.findById(id)
+      .populate("organizer")
       .exec()
       .then((journey) => res.json(journey))
       .catch((error) => next(error));
@@ -100,14 +124,13 @@ class JourneyController extends BaseController<IJourneyDocument> {
       thumbnail_url,
       banner_url,
       metadata: { bpm, duration, genre, closure },
-      modes = [],
       description,
       is_private,
       beatmaps = [],
       osu_link,
     } = body;
-    new MongooseModel({
-      organizer: user._id,
+    new Model({
+      organizer: user.id,
       artist,
       banner_url,
       title,
@@ -117,15 +140,60 @@ class JourneyController extends BaseController<IJourneyDocument> {
         bpm: bpm,
         duration: duration,
         genre: genre,
-        closure: closure ? new Date(closure) : null,
+        closure: closure,
       },
-      modes,
       is_private,
       osu_link,
       description,
     })
       .save({ validateBeforeSave: true })
-      .then((journey) => res.json(journey))
+      .then((journey) => res.json(new Journey(journey)))
+      .catch((error) => next(error));
+  }
+
+  @ApiOperationPost({
+    parameters: {
+      path: {
+        id: {
+          type: SwaggerDefinitionConstant.STRING,
+          description: "Journey's id",
+        },
+      },
+    },
+    responses: {
+      204: {
+        description: "The journey was deleted succesfully",
+      },
+      404: {
+        description: "The journey could not be found",
+      },
+      ...authenticationResponses,
+    },
+    security: {
+      ensureAuthenticated: [],
+    },
+  })
+  public deleteOneById(
+    req: Request<{ id: string }>,
+    res: Response,
+    next: NextFunction
+  ) {
+    Model.findById(req.params.id)
+      .populate("organizer")
+      .exec()
+      .then((journey) => {
+        if (!journey) {
+          return res.status(404);
+        }
+        if (journey.organizer.id === req.user.id) {
+          res.status(204);
+          return journey.delete();
+        }
+        throw new UnauthorizedError();
+      })
+      .then(() => {
+        res.json();
+      })
       .catch((error) => next(error));
   }
 }

@@ -1,8 +1,4 @@
-import {
-  ApiModel,
-  ApiModelProperty,
-  SwaggerDefinitionConstant,
-} from "swagger-express-ts";
+import { ApiModel, ApiModelProperty } from "swagger-express-ts";
 import {
   IBeatmap,
   IBeatmapDocument,
@@ -16,12 +12,15 @@ import { IUser } from "../schemas/user";
   name: "Journey.Beatmap",
 })
 export default class Beatmap implements IBeatmap {
-  constructor(document: IBeatmap) {
+  constructor(document: IBeatmapDocument) {
+    this.id = document.id;
     this.mode = document.mode;
     this.difficulty = document.difficulty;
     this.status = document.status;
     this.assignee = document.assignee;
   }
+  @ApiModelProperty()
+  public id: string;
 
   @ApiModelProperty({ required: true })
   public name: string;

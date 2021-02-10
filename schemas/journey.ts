@@ -1,9 +1,9 @@
 import * as mongoose from "mongoose";
 import mongoose_fuzzy_searching = require("mongoose-fuzzy-searching");
 import { Utils } from "../types/mongoose_aux";
-
+import * as _ from "lodash";
 import BeatmapSchema, { IBeatmap, BeatmapModes } from "./journey.beatmap";
-import { IUser } from "./user";
+import { IUser, IUserDocument } from "./user";
 
 export enum JourneyStatus {
   pending = "pending",
@@ -35,23 +35,46 @@ export interface IJourney {
   osu_link?: string;
 }
 
-export interface IJourneyDocument extends IJourney, mongoose.Document {}
+export interface IJourneyDocument extends IJourney, mongoose.Document {
+  /* The reference to the organizers document  */
+  organizer: IUserDocument;
+}
 
 const JourneySchemaFields: Utils.SchemaFields<IJourney> = {
   title: String,
   artist: String,
-  organizer: { type: mongoose.Schema.Types.ObjectId, required: true },
+  organizer: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "User",
+    required: true,
+  },
   thumbnail_url: String,
   banner_url: String,
   metadata: {
     genre: String,
     bpm: [Number],
-    closure: { type: Date, required: false },
+    closure: {
+      type: Date,
+      required: false,
+      set: (closure) => {
+        if (typeof closure === "string") {
+          return new Date(closure);
+        }
+        if (closure instanceof Date) {
+          return closure;
+        }
+        return closure;
+      },
+    },
     duration: Number,
   },
   modes: {
     type: [String],
     enum: Object.values(BeatmapModes),
+    virtual: true,
+    get: function () {
+      return _.uniq((this as IJourneyDocument).beatmaps.map((b) => b.mode));
+    },
     default: [],
   },
   description: String,

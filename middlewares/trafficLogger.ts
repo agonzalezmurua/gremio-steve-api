@@ -37,7 +37,7 @@ export default function trafficLogger(req, res, next) {
 
     consola.info("", ...args);
 
-    if (req.method !== "GET") {
+    if (req.method !== "GET" && req.method !== "DELETE") {
       consola.debug(colors.grey("\n request body:"), req.body);
     }
   });

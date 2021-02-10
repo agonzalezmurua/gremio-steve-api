@@ -3,12 +3,16 @@ import consola from "consola";
 import config from "config";
 import { encode } from "querystring";
 import { Request, Response } from "express";
+import format from "string-format";
 
 import { issueAuthentication } from "../authentication";
 import UserController from "../../../controllers/users";
 import prefixes from "../../../constants/consola_prefixes";
 
-const redirect_uri = config.get("web.url") + config.get("web.osu_callback");
+const redirect_uri = format(
+  config.get("web.auth_redirect_url"),
+  config.get("web")
+);
 
 /** Redirects */
 export function requestAuthorization(req: Request, res: Response) {
@@ -19,8 +23,7 @@ export function requestAuthorization(req: Request, res: Response) {
     scope: ["identify"].join(" "), // A space-delimited string of scopes.
   };
 
-  const path = "/oauth/authorize";
-  const url = new URL(path, config.get("osu.base_url"));
+  const url = new URL(format(config.get("osu.auth_url"), config.get("osu")));
 
   Object.entries(parameters).forEach(([name, value]) => {
     url.searchParams.append(name, value);
@@ -97,7 +100,7 @@ export async function handleAuthentication(
     consola.debug(prefixes.oauth_osu, "issuing authentication token");
     res.json(
       issueAuthentication({
-        _id: user._id,
+        id: user.id,
         osu_id: user.osu_id,
         avatar_url: user.avatar_url,
         name: user.name,

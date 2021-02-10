@@ -16,7 +16,7 @@ export default function ensureAuthenticated(
   const authorization = req.header("authorization");
 
   if (!authorization) {
-    new UnauthenticatedError();
+    throw new UnauthenticatedError();
   }
 
   const [token_type, access_token] = authorization.split(" ");

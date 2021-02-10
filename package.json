@@ -37,10 +37,14 @@
     "@types/lodash": "^4.14.168"
   },
   "scripts": {
-    "start": "ts-node-dev --inspect -- app.ts",
+    "start": "ts-node-dev --trace-warnings --inspect -- app.ts",
     "cli": "cross-env CONSOLA_LEVEL=4 node --inspect -r dotenv/config -r esm utils/cli.js",
     "prod": "node index.js"
   },
-  "author": "",
+  "author": {
+    "email": "8430727+agonzalezmurua@users.noreply.github.com",
+    "name": "Agustín González",
+    "url": "https://github.com/agonzalezmurua"
+  },
   "license": "ISC"
 }

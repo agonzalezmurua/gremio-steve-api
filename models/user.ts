@@ -14,7 +14,7 @@ import Journey from "./journey";
 @ApiModel()
 export default class User implements IUser {
   constructor(document: IUserDocument) {
-    this._id = document._id;
+    this.id = document.id;
     this.osu_id = document.osu_id;
     this.name = document.name;
     this.active = document.active;
@@ -35,13 +35,11 @@ export default class User implements IUser {
   }
 
   @ApiModelProperty({
-    required: true,
+    description: "User's id (read only)",
   })
-  public _id: string;
+  public id: string;
 
-  @ApiModelProperty({
-    required: true,
-  })
+  @ApiModelProperty({ description: "Ous user's id (read only)" })
   public osu_id: string;
 
   @ApiModelProperty({

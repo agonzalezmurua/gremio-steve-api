@@ -1,16 +1,25 @@
 {
   "app": {
-    "port": 3010
+    "port": 3010,
+    "host": "localhost",
+    "protocol": "http",
+    "path": "",
+    "url": "{protocol}://{host}:{port}{path}",
+    "auth_token_url": "{protocol}://{host}:{port}{path}/"
   },
   "web": {
-    "osu_callback": "/auth/osu/callback",
-    "url": "http://localhost:3000"
+    "host": "localhost",
+    "protocol": "http",
+    "port": 3000,
+    "auth_redirect_url": "{protocol}://{host}:{port}/auth/osu/callback",
+    "url": "{protocol}://{host}:{port}"
   },
   "cors": {
     "allowed_origin": "http://localhost:3000"
   },
   "osu": {
     "base_url": "https://osu.ppy.sh",
+    "auth_url": "{base_url}/oauth/authorize",
     "api": {
       "client_id": 5165,
       "path": "/api/v2"

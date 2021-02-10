@@ -1,6 +1,9 @@
 import express = require("express");
+import config = require("config");
 import { Application } from "express";
 import * as swagger from "swagger-express-ts";
+import { ISwaggerContact } from "swagger-express-ts/i-swagger";
+import format from "string-format";
 
 import packageJson = require("../package.json");
 
@@ -18,8 +21,20 @@ export async function configure(app: Application) {
     swagger.express({
       definition: {
         info: {
-          title: "Steve Api",
+          title: "Gremio Steve Api",
+          description: "",
           version: packageJson.version,
+          contact: packageJson.author as ISwaggerContact,
+        },
+        securityDefinitions: {
+          ApiKeyAuth: {
+            // @ts-ignore
+            description:
+              "JWT Authorization header using the Bearer scheme. Example: 'Authorization: Bearer {token}'",
+            type: "apiKey",
+            in: "header",
+            name: "Authorization",
+          },
         },
       },
     })

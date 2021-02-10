@@ -1,5 +1,6 @@
 import jwt = require("jsonwebtoken");
 import { IUserDocument } from "../../schemas/user";
+import { Steve } from "../../types/steve-api";
 
 const SECRET = process.env.APP_AUTH_SECRET;
 const ALGORITHM = "HS256";
@@ -8,7 +9,7 @@ const EXPIRATION = 60 * 60 * 24 * 2; // 2 days
 /**
  * Signs a given object and creates a Json Web Token
  */
-function sign(payload: Partial<IUserDocument>): string {
+function sign(payload: Steve.LoggedUser): string {
   return jwt.sign(payload, SECRET, {
     expiresIn: EXPIRATION,
     algorithm: ALGORITHM,
@@ -18,7 +19,7 @@ function sign(payload: Partial<IUserDocument>): string {
  * Attemps to verify JWT signature
  */
 export function verifyJwt(token: string) {
-  return jwt.verify(token, SECRET) as IUserDocument;
+  return jwt.verify(token, SECRET) as Steve.LoggedUser;
 }
 
 /**
@@ -26,7 +27,7 @@ export function verifyJwt(token: string) {
  * @param payload Authentication payload
  */
 export const issueAuthentication = (
-  payload: Partial<IUserDocument>
+  payload: Steve.LoggedUser
 ): { token_type: "Bearer"; expires_in: number; access_token: string } => {
   return {
     token_type: "Bearer",
