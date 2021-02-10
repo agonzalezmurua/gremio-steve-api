@@ -1,6 +1,6 @@
 import axios from "axios";
 import colors = require("colors");
-const consola = require("consola");
+import consola from "consola";
 import config = require("config");
 
 import prefixes from "../constants/consola_prefixes";
@@ -24,6 +24,6 @@ client.interceptors.response.use(
 /**
  * Configures osu's token managment and interceptors
  */
-export async function configure() {
+export async function configure(): Promise<void> {
   await configureToken();
 }

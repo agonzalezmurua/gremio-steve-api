@@ -1,14 +1,16 @@
-const consola = require("consola");
+import { Request, Response, NextFunction } from "express";
 import colors = require("colors");
+import consola from "consola";
 import prefixes from "../constants/consola_prefixes";
 
 /**
  * Logger that tracks every response sent by express
- * @param {import('express').Request} req
- * @param {import('express').Response} res
- * @param {import('express').NextFunction} next
  */
-export default function trafficLogger(req, res, next) {
+export default function trafficLogger(
+  req: Request,
+  res: Response,
+  next: NextFunction
+): void {
   res.on("finish", function () {
     let method = req.method;
     const path = req.originalUrl;
@@ -33,7 +35,7 @@ export default function trafficLogger(req, res, next) {
         method = colors.grey(method);
         break;
     }
-    let args = [prefixes.app, method, protocol, code, "-", path];
+    const args = [prefixes.app, method, protocol, code, "-", path];
 
     consola.info("", ...args);
 

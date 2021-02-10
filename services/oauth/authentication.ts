@@ -1,5 +1,4 @@
 import jwt = require("jsonwebtoken");
-import { IUserDocument } from "../../schemas/user";
 import { Steve } from "../../types/steve-api";
 
 const SECRET = process.env.APP_AUTH_SECRET;
@@ -18,7 +17,7 @@ function sign(payload: Steve.LoggedUser): string {
 /**
  * Attemps to verify JWT signature
  */
-export function verifyJwt(token: string) {
+export function verifyJwt(token: string): string | unknown {
   return jwt.verify(token, SECRET) as Steve.LoggedUser;
 }
 

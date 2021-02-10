@@ -3,7 +3,7 @@ import { encode } from "querystring";
 import config = require("config");
 import prefixes from "../../constants/consola_prefixes";
 import { client } from "../osu.configure";
-const consola = require("consola");
+import consola from "consola";
 
 const oauth = axios.create({
   baseURL: config.get("osu.base_url"),
@@ -11,10 +11,8 @@ const oauth = axios.create({
 
 /**
  * Does the Grant Code authentication token retrieval from the osu service
- *
- * @returns {Promise<string>}
  */
-export async function fetchToken() {
+export async function fetchToken(): Promise<string> {
   return oauth
     .post(
       "/oauth/token",
@@ -42,10 +40,12 @@ export async function fetchToken() {
  * Sets an interceptor for osu axios client instance that maps the
  * Authorization header to every request
  *
- * @param {string} authorization Authorization token
- * @returns {number} Interceptor's id
+ * @param authorization Authorization token
+ * @returns Interceptor's id
  */
-export function setAuthorizationHeaderInterceptor(authorization) {
+export function setAuthorizationHeaderInterceptor(
+  authorization: string
+): number {
   return client.interceptors.request.use(function (config) {
     config.headers = {
       common: {
@@ -60,9 +60,12 @@ export function setAuthorizationHeaderInterceptor(authorization) {
  * Sets a respone interceptor that evaluates when the given token has expired
  * and retrieves a new interceptor / token
  *
- * @param {number} previousRequestInterceptor Request interceptor's id
+ * @param previousRequestInterceptor Request interceptor's id
+ * @returns Interceptor's id
  */
-export function setExpiredTokenInterceptor(previousRequestInterceptor) {
+export function setExpiredTokenInterceptor(
+  previousRequestInterceptor: number
+): number {
   let requestInterceptor = previousRequestInterceptor;
   const responseInterceptor = client.interceptors.response.use(
     (response) => response,
@@ -99,7 +102,7 @@ export function setExpiredTokenInterceptor(previousRequestInterceptor) {
   return responseInterceptor;
 }
 
-export default async function configure() {
+export default async function configure(): Promise<void> {
   consola.debug(prefixes.osu, "Starting internal client token configuration");
   const authorization = await fetchToken();
   consola.debug(prefixes.osu, "Bearer token fetched");

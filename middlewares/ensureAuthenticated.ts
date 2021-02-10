@@ -12,7 +12,7 @@ export default function ensureAuthenticated(
   req: Request,
   res: Response,
   next: NextFunction
-) {
+): void {
   const authorization = req.header("authorization");
 
   if (!authorization) {

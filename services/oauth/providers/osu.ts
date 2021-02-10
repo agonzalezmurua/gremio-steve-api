@@ -15,7 +15,7 @@ const redirect_uri = format(
 );
 
 /** Redirects */
-export function requestAuthorization(req: Request, res: Response) {
+export function requestAuthorization(req: Request, res: Response): void {
   const parameters = {
     client_id: config.get("osu.api.client_id"), // The Client ID you received when you registered
     redirect_uri: redirect_uri, // The URL in your application where users will be sent after authorization. This must match the registered Application Callback URL exactly.
@@ -43,7 +43,7 @@ export async function handleAuthentication(
     expires_in: number;
     access_token: string;
   }>
-) {
+): Promise<void> {
   const client = axios.create({
     baseURL: config.get("osu.base_url"),
   });

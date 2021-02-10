@@ -1,13 +1,11 @@
 import express = require("express");
-import config = require("config");
 import { Application } from "express";
 import * as swagger from "swagger-express-ts";
 import { ISwaggerContact } from "swagger-express-ts/i-swagger";
-import format from "string-format";
 
 import packageJson = require("../package.json");
 
-export async function configure(app: Application) {
+export async function configure(app: Application): Promise<void> {
   // Static ref to static swagger website
   app.use("/api-docs/swagger", express.static("static/swagger"));
   // Static ref to static swagger website assets
@@ -28,6 +26,7 @@ export async function configure(app: Application) {
         },
         securityDefinitions: {
           ApiKeyAuth: {
+            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
             // @ts-ignore
             description:
               "JWT Authorization header using the Bearer scheme. Example: 'Authorization: Bearer {token}'",

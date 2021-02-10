@@ -16,14 +16,14 @@ declare module "mongoose" {
     /* With string and a callback */
     fuzzySearch(
       query: string,
-      callback?: (err: any, docs: T[]) => void
+      callback?: (err: Error | unknown, docs: T[]) => void
     ): Query<Array<T>, T>;
 
     /* With additional queries and callback */
     fuzzySearch(
       query: string,
       filter: FilterQuery<T>,
-      callback?: (err: any, docs: T[]) => void
+      callback?: (err: Error | unknown, docs: T[]) => void
     ): Query<Array<T>, T>;
   }
 }

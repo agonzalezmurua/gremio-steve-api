@@ -1,16 +1,15 @@
-import { Request, Response, NextFunction } from "express";
-const consola = require("consola");
+import { Request, Response } from "express";
+import consola from "consola";
 
 /**
  * Generic error handler for every appended request
  */
 export default function errorHandler(
-  err: any,
+  err: { [key: string]: unknown },
   req: Request,
-  res: Response,
-  next: NextFunction
-) {
-  const error: { [key: string]: any } = {
+  res: Response
+): void {
+  const error: { [key: string]: string | unknown } = {
     message: err.message || "NO.MESSAGE",
     name: err.name,
   };

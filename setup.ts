@@ -1,3 +1,4 @@
+import { Application } from "express";
 import colors = require("colors");
 import cors from "cors";
 import bodyParser = require("body-parser");
@@ -22,7 +23,7 @@ const handleError = (service) => (error) => {
  * Initializes main configuration of the app
  * @param {import('express').Application} app
  */
-export default async function setup(app) {
+export default async function setup(app: Application): Promise<void> {
   consola.debug(
     prefixes.app,
     "Allowing the following origin (CORS)",
