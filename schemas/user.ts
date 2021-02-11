@@ -4,29 +4,35 @@ import mongoose_fuzzy_searching = require("mongoose-fuzzy-searching");
 import { IJourney } from "./journey";
 import { Utils } from "../types/mongoose_aux";
 
+/** Available user's roles */
 export enum UserRole {
   admin = "admin",
   user = "user",
   moderator = "moderator",
 }
 
+/** User's status, for requests availability */
 export enum UserStatus {
   available = "available",
   do_not_disturb = "do_not_disturb",
 }
 
+/** Kind of available things that user is willing / interested in doing */
 export interface IAvailability {
   mods: boolean;
   guest_diffs: boolean;
   playtesting: boolean;
 }
 
+/** Gamemodes that user prefers to do */
 export interface IUserPreferences {
   std: boolean;
   taiko: boolean;
   ctb: boolean;
   mania: boolean;
 }
+
+/** Basic User interface, with main properties */
 export interface IUser {
   osu_id: string;
   name: string;
@@ -43,8 +49,10 @@ export interface IUser {
   queue: IJourney[];
 }
 
+/** Document interface of user */
 export interface IUserDocument extends IUser, mongoose.Document {}
 
+/** Schema fields definition for user */
 const UserSchemaFields: Utils.SchemaFields<IUser> = {
   osu_id: { type: String, required: true },
   name: { type: String, required: true },
@@ -82,6 +90,7 @@ const UserSchemaFields: Utils.SchemaFields<IUser> = {
   },
 };
 
+/** User schema instance */
 const UserSchema = new mongoose.Schema<IUserDocument>(UserSchemaFields, {
   timestamps: { createdAt: "created_at", updatedAt: "updated_at" },
 });

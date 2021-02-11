@@ -2,6 +2,7 @@ import * as mongoose from "mongoose";
 import { Utils } from "../types/mongoose_aux";
 import { IUser } from "./user";
 
+/** Available beatmap gameplay modes */
 export enum BeatmapModes {
   standard = "std",
   taiko = "taiko",
@@ -9,6 +10,7 @@ export enum BeatmapModes {
   mania = "mania",
 }
 
+/** Available beatmap difficulties */
 export enum BeatmapDifficulty {
   easy = "easy",
   normal = "normal",
@@ -18,6 +20,7 @@ export enum BeatmapDifficulty {
   expert_plus = "expert+",
 }
 
+/** Available beatmap status modes */
 export enum BeatmapStatus {
   ready = "ready",
   pending = "pending",
@@ -25,6 +28,7 @@ export enum BeatmapStatus {
   problem = "problem",
 }
 
+/** Basic beatmap interface, with main properties */
 export interface IBeatmap {
   name: string;
   mode: BeatmapModes;
@@ -33,8 +37,10 @@ export interface IBeatmap {
   assignee?: IUser;
 }
 
+/** Document interface of beatmap */
 export interface IBeatmapDocument extends IBeatmap, mongoose.Document {}
 
+/** Fields definitions of schema object */
 const BeatmapSchemaFields: Utils.SchemaFields<IBeatmap> = {
   name: String,
   mode: {
@@ -55,6 +61,7 @@ const BeatmapSchemaFields: Utils.SchemaFields<IBeatmap> = {
   },
 };
 
+/** Beatmap schema instance */
 const BeatmapSchema = new mongoose.Schema<IBeatmapDocument>(
   BeatmapSchemaFields
 );

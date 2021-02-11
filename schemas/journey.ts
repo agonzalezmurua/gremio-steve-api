@@ -9,6 +9,7 @@ import BeatmapSchema, {
 } from "./journey.beatmap";
 import { IUser, IUserDocument } from "./user";
 
+/** Available journy statuses */
 export enum JourneyStatus {
   pending = "pending",
   open = "open",
@@ -17,6 +18,8 @@ export enum JourneyStatus {
   problem = "problem",
   closed = "closed",
 }
+
+/** Journey's metadata information */
 export interface IMetadata {
   genre: string;
   bpm: number[];
@@ -24,6 +27,7 @@ export interface IMetadata {
   duration: number;
 }
 
+/** Basic journey interface, with main properties */
 export interface IJourney {
   title: string;
   artist: string;
@@ -39,12 +43,15 @@ export interface IJourney {
   osu_link?: string;
 }
 
+/** Document interface of journey */
 export interface IJourneyDocument extends IJourney, mongoose.Document {
-  /* The reference to the organizers document  */
+  /* References to the organizers document, dont forget to populate this field */
   organizer: IUserDocument;
+  /** Beatmap schema, this one does not need to be populated */
   beatmaps: IBeatmapDocument[];
 }
 
+/** Field definitinons of journey */
 const JourneySchemaFields: Utils.SchemaFields<IJourney> = {
   title: String,
   artist: String,
@@ -98,6 +105,7 @@ const JourneySchemaFields: Utils.SchemaFields<IJourney> = {
   },
 };
 
+/** Journey schema instance */
 const JourneySchema = new mongoose.Schema<IJourneyDocument>(
   JourneySchemaFields,
   { timestamps: { createdAt: "created_at", updatedAt: "updated_at" } }
