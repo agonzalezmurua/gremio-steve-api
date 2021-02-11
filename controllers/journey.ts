@@ -29,6 +29,14 @@ class JourneyController extends BaseController<IJourneyDocument> {
   @ApiOperationGet({
     description: "Search a list of journeys based on a string",
     summary: "Serach for journeys",
+    parameters: {
+      query: {
+        search: {
+          type: SwaggerDefinitionConstant.STRING,
+          allowEmptyValue: true,
+        },
+      },
+    },
     responses: {
       200: {
         model: "Journey",
@@ -36,7 +44,7 @@ class JourneyController extends BaseController<IJourneyDocument> {
       },
     },
   })
-  public search(req: Request, res: Response, next: NextFunction) {
+  public searchJourneys(req: Request, res: Response, next: NextFunction) {
     const {
       query: { search = "" },
     } = req;
@@ -67,7 +75,7 @@ class JourneyController extends BaseController<IJourneyDocument> {
       },
     },
   })
-  public getMines({ user }: Request, res: Response, next: NextFunction) {
+  public getMyJourneys({ user }: Request, res: Response, next: NextFunction) {
     Model.find({ organizer: user.id })
       .exec()
       .then((journeys) => res.json(journeys.map((j) => new Journey(j))))
@@ -90,7 +98,7 @@ class JourneyController extends BaseController<IJourneyDocument> {
       404: {},
     },
   })
-  public getOneById(
+  public getOneJourneyById(
     req: Request<{ id: string }>,
     res: Response,
     next: NextFunction
@@ -119,7 +127,7 @@ class JourneyController extends BaseController<IJourneyDocument> {
       ensureAuthenticated: [],
     },
   })
-  public create(
+  public createOneJourney(
     { body, user }: Request<null, null, IJourney>,
     res: Response,
     next: NextFunction
@@ -182,7 +190,7 @@ class JourneyController extends BaseController<IJourneyDocument> {
       ensureAuthenticated: [],
     },
   })
-  public deleteOneById(
+  public deleteOneJourneyById(
     req: Request<{ id: string }>,
     res: Response,
     next: NextFunction

@@ -4,11 +4,15 @@ import ensureAuthenticated from "../middlewares/ensureAuthenticated";
 
 const router = express.Router();
 
-router.get("/", JourneyController.search);
-router.post("/", ensureAuthenticated, JourneyController.create);
-router.get("/mine", ensureAuthenticated, JourneyController.getMines);
+router.get("/", JourneyController.searchJourneys);
+router.post("/", ensureAuthenticated, JourneyController.createOneJourney);
+router.get("/mine", ensureAuthenticated, JourneyController.getMyJourneys);
 
-router.get("/:id", JourneyController.getOneById);
-router.delete("/:id", ensureAuthenticated, JourneyController.deleteOneById);
+router.get("/:id", JourneyController.getOneJourneyById);
+router.delete(
+  "/:id",
+  ensureAuthenticated,
+  JourneyController.deleteOneJourneyById
+);
 
 export default router;

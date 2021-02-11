@@ -41,7 +41,7 @@ class UserController extends BaseController<IUserDocument> {
       },
     },
   })
-  public searchUser(req: Request, res: Response) {
+  public searchUsers(req: Request, res: Response) {
     const {
       query: { search = "" },
     } = req;
