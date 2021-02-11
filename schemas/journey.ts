@@ -2,7 +2,11 @@ import * as mongoose from "mongoose";
 import mongoose_fuzzy_searching = require("mongoose-fuzzy-searching");
 import { Utils } from "../types/mongoose_aux";
 import * as _ from "lodash";
-import BeatmapSchema, { IBeatmap, BeatmapModes } from "./journey.beatmap";
+import BeatmapSchema, {
+  IBeatmap,
+  BeatmapModes,
+  IBeatmapDocument,
+} from "./journey.beatmap";
 import { IUser, IUserDocument } from "./user";
 
 export enum JourneyStatus {
@@ -38,6 +42,7 @@ export interface IJourney {
 export interface IJourneyDocument extends IJourney, mongoose.Document {
   /* The reference to the organizers document  */
   organizer: IUserDocument;
+  beatmaps: IBeatmapDocument[];
 }
 
 const JourneySchemaFields: Utils.SchemaFields<IJourney> = {
