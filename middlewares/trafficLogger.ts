@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from "express";
 import colors = require("colors");
 import consola from "consola";
-import prefixes from "../constants/consola_prefixes";
+import prefixes from "_/constants/consola.prefixes";
 
 /**
  * Logger that tracks every response sent by express

@@ -1,5 +1,5 @@
 import { ApiModel, ApiModelProperty } from "swagger-express-ts";
-import { IUser, IUserPreferences } from "../schemas/user";
+import { IUser, IUserPreferences } from "_/schemas/user";
 
 @ApiModel({
   name: "User.Preferences",

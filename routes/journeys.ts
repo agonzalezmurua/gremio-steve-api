@@ -1,6 +1,6 @@
 import * as express from "express";
-import JourneyController from "../controllers/journey";
-import ensureAuthenticated from "../middlewares/ensureAuthenticated";
+import JourneyController from "_/controllers/journey";
+import ensureAuthenticated from "_/middlewares/ensureAuthenticated";
 
 const router = express.Router();
 

@@ -10,10 +10,10 @@ import {
 
 import BaseController from "./_base";
 
-import Journey from "../models/journey";
-import JourneySchema, { IJourney, IJourneyDocument } from "../schemas/journey";
-import authenticationResponses from "../constants/swagger.authenticationResponses";
-import { UnauthorizedError } from "../utils/errors";
+import Journey from "_/models/journey";
+import JourneySchema, { IJourney, IJourneyDocument } from "_/schemas/journey";
+import authenticationResponses from "_/constants/swagger.authenticationResponses";
+import { UnauthorizedError } from "_/utils/errors";
 
 const Model = mongoose.model("Journey", JourneySchema);
 

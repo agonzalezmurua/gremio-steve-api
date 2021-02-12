@@ -4,12 +4,12 @@ import {
   SwaggerDefinitionConstant,
 } from "swagger-express-ts";
 
-import { IJourneyDocument } from "../schemas/journey";
-import { IUser, IUserDocument, UserRole, UserStatus } from "../schemas/user";
+import { IJourneyDocument } from "_/schemas/journey";
+import { IUser, IUserDocument, UserRole, UserStatus } from "_/schemas/user";
 
-import UserPreferences from "./user.preferences";
-import { UserAvailability } from "./user.availability";
-import Journey from "./journey";
+import UserPreferences from "_/models/user.preferences";
+import { UserAvailability } from "_/models/user.availability";
+import Journey from "_/models/journey";
 
 @ApiModel()
 export default class User implements IUser {

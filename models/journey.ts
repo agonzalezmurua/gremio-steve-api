@@ -9,11 +9,11 @@ import {
   IBeatmapDocument,
   BeatmapModes,
 } from "../schemas/journey.beatmap";
-import { IJourney, IJourneyDocument, JourneyStatus } from "../schemas/journey";
-import { IUser } from "../schemas/user";
+import { IJourney, IJourneyDocument, JourneyStatus } from "_/schemas/journey";
+import { IUser } from "_/schemas/user";
 
-import { JourneyMetadata } from "./journey.metadata";
-import Beatmap from "./journey.beatmap";
+import JourneyMetadata from "_/models/journey.metadata";
+import Beatmap from "_/models/journey.beatmap";
 
 @ApiModel()
 class Journey implements IJourney {

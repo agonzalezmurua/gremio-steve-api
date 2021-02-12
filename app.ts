@@ -3,7 +3,7 @@ import colors = require("colors");
 import express = require("express");
 import config = require("config");
 
-import prefixes from "./constants/consola_prefixes";
+import prefixes from "./constants/consola.prefixes";
 import setup from "./setup";
 import consola from "consola";
 

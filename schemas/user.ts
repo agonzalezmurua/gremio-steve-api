@@ -1,8 +1,8 @@
 import * as mongoose from "mongoose";
 import mongoose_fuzzy_searching = require("mongoose-fuzzy-searching");
 
-import { IJourney } from "./journey";
-import { Utils } from "../types/mongoose_aux";
+import { IJourney } from "_/schemas/journey";
+import { Utils } from "_/types/mongoose_aux";
 
 /** Available user's roles */
 export enum UserRole {

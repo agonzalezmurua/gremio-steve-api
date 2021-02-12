@@ -3,7 +3,7 @@ import { Application } from "express";
 import * as swagger from "swagger-express-ts";
 import { ISwaggerContact } from "swagger-express-ts/i-swagger";
 
-import packageJson = require("../package.json");
+import packageJson = require("_/package.json");
 
 export async function configure(app: Application): Promise<void> {
   // Static ref to static swagger website

@@ -3,12 +3,12 @@ import {
   ApiModelProperty,
   SwaggerDefinitionConstant,
 } from "swagger-express-ts";
-import { IMetadata } from "../schemas/journey";
+import { IMetadata } from "_/schemas/journey";
 
 @ApiModel({
   name: "Journey.Metadata",
 })
-export class JourneyMetadata implements IMetadata {
+export default class JourneyMetadata implements IMetadata {
   @ApiModelProperty({
     required: true,
   })

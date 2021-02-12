@@ -6,10 +6,10 @@ import {
   SwaggerDefinitionConstant,
 } from "swagger-express-ts";
 
-import BaseController from "./_base";
+import BaseController from "_/controllers/_base";
 
-import User from "../models/user";
-import UserSchema, { IUserDocument } from "../schemas/user";
+import User from "_/models/user";
+import UserSchema, { IUserDocument } from "_/schemas/user";
 
 const MongooseModel = mongoose.model("User", UserSchema);
 

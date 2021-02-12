@@ -5,8 +5,8 @@ import {
   BeatmapDifficulty,
   BeatmapModes,
   BeatmapStatus,
-} from "../schemas/journey.beatmap";
-import { IUser } from "../schemas/user";
+} from "_/schemas/journey.beatmap";
+import { IUser } from "_/schemas/user";
 
 @ApiModel({
   name: "Journey.Beatmap",

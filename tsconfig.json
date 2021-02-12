@@ -17,6 +17,10 @@
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true,
     "pretty": true,
-    "lib": ["ESNext", "DOM"]
+    "lib": ["ESNext", "DOM"],
+    "baseUrl": "./",
+    "paths": {
+      "_/*": ["./*"]
+    }
   }
 }

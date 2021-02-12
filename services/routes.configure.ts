@@ -1,8 +1,8 @@
 import { Router, Application } from "express";
 import errorHandler from "../middlewares/errorHandler";
 
-import Users from "../routes/users";
-import Journeys from "../routes/journeys";
+import Users from "_/routes/users";
+import Journeys from "_/routes/journeys";
 
 /**
  * Configures api routes

@@ -3,8 +3,8 @@ import colors = require("colors");
 import consola from "consola";
 import config = require("config");
 
-import prefixes from "../constants/consola_prefixes";
-import configureToken from "./osu/token";
+import prefixes from "_/constants/consola.prefixes";
+import configureToken from "_/services/osu/token";
 
 export const client = axios.create({
   baseURL: config.get("osu.base_url"),

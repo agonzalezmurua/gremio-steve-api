@@ -1,5 +1,5 @@
 import * as mongoose from "mongoose";
-import { Utils } from "../types/mongoose_aux";
+import { Utils } from "_/types/mongoose_aux";
 import { IUser } from "./user";
 
 /** Available beatmap gameplay modes */

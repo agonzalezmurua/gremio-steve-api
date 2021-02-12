@@ -5,7 +5,7 @@ import bodyParser = require("body-parser");
 import cookieParser from "cookie-parser";
 import config = require("config");
 
-import prefixes from "./constants/consola_prefixes";
+import prefixes from "./constants/consola.prefixes";
 import { configure as configureOsuClient } from "./services/osu.configure";
 import { configure as configureDatabase } from "./services/database.configure";
 import { configure as configureOauth } from "./services/oauth.configure";

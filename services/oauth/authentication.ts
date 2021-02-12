@@ -1,5 +1,5 @@
 import jwt = require("jsonwebtoken");
-import { Steve } from "../../types/steve-api";
+import { Steve } from "_/types/steve-api";
 
 const SECRET = process.env.APP_AUTH_SECRET;
 const ALGORITHM = "HS256";

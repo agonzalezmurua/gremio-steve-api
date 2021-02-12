@@ -1,5 +1,5 @@
 import config = require("config");
-import { client } from "../osu.configure";
+import { client } from "_/services/osu.configure";
 
 export default {
   beatmapset: {

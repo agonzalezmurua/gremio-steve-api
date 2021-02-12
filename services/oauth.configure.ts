@@ -1,9 +1,9 @@
 import { Router, Application, Request, Response, NextFunction } from "express";
-import { verifyJwt } from "./oauth/authentication";
+import { verifyJwt } from "_/services/oauth/authentication";
 import {
   requestAuthorization as osuAuthorization,
   handleAuthentication as osuAuthentication,
-} from "./oauth/providers/osu";
+} from "_/services/oauth/providers/osu";
 
 /**
  * Configures a router with 'oauth' prefix that handles

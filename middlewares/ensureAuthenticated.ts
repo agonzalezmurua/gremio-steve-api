@@ -1,5 +1,4 @@
 import { Request, Response, NextFunction } from "express";
-import { UnauthenticatedError } from "../utils/errors";
 
 /**
  * Ensures that the given authorization header contains a valid

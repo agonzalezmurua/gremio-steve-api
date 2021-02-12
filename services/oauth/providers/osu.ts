@@ -5,9 +5,9 @@ import { encode } from "querystring";
 import { Request, Response } from "express";
 import format from "string-format";
 
-import { issueAuthentication } from "../authentication";
-import UserController from "../../../controllers/users";
-import prefixes from "../../../constants/consola_prefixes";
+import { issueAuthentication } from "_/services/oauth/authentication";
+import UserController from "_/controllers/users";
+import prefixes from "_/constants/consola.prefixes";
 
 const redirect_uri = format(
   config.get("web.auth_redirect_url"),

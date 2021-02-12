@@ -1,13 +1,13 @@
 import * as mongoose from "mongoose";
 import mongoose_fuzzy_searching = require("mongoose-fuzzy-searching");
-import { Utils } from "../types/mongoose_aux";
+import { Utils } from "_/types/mongoose_aux";
 import * as _ from "lodash";
 import BeatmapSchema, {
   IBeatmap,
   BeatmapModes,
   IBeatmapDocument,
-} from "./journey.beatmap";
-import { IUser, IUserDocument } from "./user";
+} from "_/schemas/journey.beatmap";
+import { IUser, IUserDocument } from "_/schemas/user";
 
 /** Available journy statuses */
 export enum JourneyStatus {

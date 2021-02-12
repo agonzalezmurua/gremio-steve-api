@@ -1,5 +1,5 @@
 import { ApiModel, ApiModelProperty } from "swagger-express-ts";
-import { IAvailability } from "../schemas/user";
+import { IAvailability } from "_/schemas/user";
 
 @ApiModel({
   name: "User.Availability",

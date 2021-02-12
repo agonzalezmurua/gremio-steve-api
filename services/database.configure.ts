@@ -4,7 +4,7 @@ import colors = require("colors");
 import config = require("config");
 import format from "string-format";
 
-import prefixes from "../constants/consola_prefixes";
+import prefixes from "_/constants/consola.prefixes";
 
 /**
  * Creates initial configuration and connects to the database
