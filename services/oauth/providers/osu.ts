@@ -6,7 +6,7 @@ import { Request, Response } from "express";
 import format from "string-format";
 
 import { issueAuthentication } from "_/services/oauth/authentication";
-import UserController from "_/controllers/users";
+import { UserMongooseModel } from "_/controllers/users";
 import prefixes from "_/constants/consola.prefixes";
 
 const redirect_uri = format(
@@ -81,11 +81,11 @@ export async function handleAuthentication(
     await client.delete(`${config.get("osu.api.path")}/oauth/tokens/current`);
 
     consola.debug(prefixes.oauth_osu, "retrieving user from database");
-    let user = await UserController.model.findOne({ osu_id: me.id }).exec();
+    let user = await UserMongooseModel.findOne({ osu_id: me.id }).exec();
 
     if (!user) {
       consola.debug(prefixes.oauth_osu, "user does not exist, creating");
-      user = new UserController.model();
+      user = new UserMongooseModel();
     }
 
     user = Object.assign(user, {

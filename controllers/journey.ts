@@ -8,24 +8,18 @@ import {
   SwaggerDefinitionConstant,
 } from "swagger-express-ts";
 
-import BaseController from "./_base";
-
 import Journey from "_/models/journey";
-import JourneySchema, { IJourney, IJourneyDocument } from "_/schemas/journey";
+import JourneySchema, { IJourney, JourneyStatus } from "_/schemas/journey";
 import authenticationResponses from "_/constants/swagger.authenticationResponses";
 import { UnauthorizedError } from "_/utils/errors";
 
-const Model = mongoose.model("Journey", JourneySchema);
+export const JourneyMongooseModel = mongoose.model("Journey", JourneySchema);
 
 @ApiPath({
   path: "/journeys",
   name: "Journeys",
 })
-class JourneyController extends BaseController<IJourneyDocument> {
-  constructor() {
-    super(Model);
-  }
-
+class JourneyController {
   @ApiOperationGet({
     description: "Search a list of journeys based on a string",
     summary: "Serach for journeys",
@@ -49,7 +43,7 @@ class JourneyController extends BaseController<IJourneyDocument> {
       query: { search = "" },
     } = req;
 
-    Model.fuzzySearch(search as string)
+    JourneyMongooseModel.fuzzySearch(search as string)
       .select("-confidenceScore")
       .populate({ path: "organizer", select: "-journeys -queue" })
       .exec()
@@ -62,9 +56,16 @@ class JourneyController extends BaseController<IJourneyDocument> {
   }
 
   @ApiOperationGet({
-    path: "/mine",
+    path: "/mine/:status?",
     description: "Get the journeys that were organized by the current user",
     summary: "Get my journeys",
+    parameters: {
+      path: {
+        status: {
+          type: SwaggerDefinitionConstant.STRING,
+        },
+      },
+    },
     security: {
       bearerAuth: [],
     },
@@ -75,8 +76,15 @@ class JourneyController extends BaseController<IJourneyDocument> {
       },
     },
   })
-  public getMyJourneys({ user }: Request, res: Response, next: NextFunction) {
-    Model.find({ organizer: user.id })
+  public getMyJourneys(
+    req: Request<{ status?: JourneyStatus }>,
+    res: Response,
+    next: NextFunction
+  ) {
+    JourneyMongooseModel.find({
+      organizer: req.user.id,
+      status: req.params.status,
+    })
       .exec()
       .then((journeys) => res.json(journeys.map((j) => new Journey(j))))
       .catch((e) => next(e));
@@ -103,7 +111,7 @@ class JourneyController extends BaseController<IJourneyDocument> {
     res: Response,
     next: NextFunction
   ) {
-    Model.findById(req.params.id)
+    JourneyMongooseModel.findById(req.params.id)
       .populate("organizer")
       .exec()
       .then((journey) => res.json(journey))
@@ -143,7 +151,7 @@ class JourneyController extends BaseController<IJourneyDocument> {
       beatmaps = [],
       osu_link,
     } = body;
-    new Model({
+    new JourneyMongooseModel({
       organizer: user.id,
       artist,
       banner_url,
@@ -195,7 +203,7 @@ class JourneyController extends BaseController<IJourneyDocument> {
     res: Response,
     next: NextFunction
   ) {
-    Model.findById(req.params.id)
+    JourneyMongooseModel.findById(req.params.id)
       .populate("organizer")
       .exec()
       .then((journey) => {

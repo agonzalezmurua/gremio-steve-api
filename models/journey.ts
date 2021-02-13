@@ -44,7 +44,7 @@ class Journey implements IJourney {
   @ApiModelProperty({ required: true })
   public artist: string;
 
-  @ApiModelProperty({ model: "User", required: true })
+  @ApiModelProperty({ model: "User" })
   public organizer: IUser;
 
   @ApiModelProperty({ required: true })
