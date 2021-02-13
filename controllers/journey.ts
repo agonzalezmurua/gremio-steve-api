@@ -178,7 +178,7 @@ class JourneyController extends BaseController<IJourneyDocument> {
       },
     },
     responses: {
-      204: {
+      200: {
         description: "The journey was deleted succesfully",
       },
       404: {
