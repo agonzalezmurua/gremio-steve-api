@@ -28,6 +28,7 @@ class JourneyController {
         search: {
           type: SwaggerDefinitionConstant.STRING,
           allowEmptyValue: true,
+          required: false,
         },
       },
     },
@@ -56,13 +57,15 @@ class JourneyController {
   }
 
   @ApiOperationGet({
-    path: "/mine/:status?",
+    path: "/mine",
     description: "Get the journeys that were organized by the current user",
     summary: "Get my journeys",
     parameters: {
-      path: {
+      query: {
         status: {
           type: SwaggerDefinitionConstant.STRING,
+          required: false,
+          default: undefined,
         },
       },
     },
@@ -77,16 +80,24 @@ class JourneyController {
     },
   })
   public getMyJourneys(
-    req: Request<{ status?: JourneyStatus }>,
+    req: Request<unknown, unknown, unknown, { status?: JourneyStatus }>,
     res: Response,
     next: NextFunction
   ) {
-    JourneyMongooseModel.find({
-      organizer: req.user.id,
-      status: req.params.status,
-    })
+    JourneyMongooseModel.find(
+      req.query.status
+        ? {
+            organizer: req.user.id,
+            status: req.query.status,
+          }
+        : {
+            organizer: req.user.id,
+          }
+    )
       .exec()
-      .then((journeys) => res.json(journeys.map((j) => new Journey(j))))
+      .then((journeys) =>
+        res.json(journeys.map((journey) => new Journey(journey)))
+      )
       .catch((e) => next(e));
   }
 
@@ -122,6 +133,7 @@ class JourneyController {
     description: "Create a new journey",
     parameters: {
       body: {
+        name: "journey",
         model: "Journey",
       },
     },
@@ -136,7 +148,7 @@ class JourneyController {
     },
   })
   public createOneJourney(
-    { body, user }: Request<null, null, IJourney>,
+    { body: { journey }, user }: Request<null, null, { journey: IJourney }>,
     res: Response,
     next: NextFunction
   ) {
@@ -150,7 +162,7 @@ class JourneyController {
       is_private,
       beatmaps = [],
       osu_link,
-    } = body;
+    } = journey;
     new JourneyMongooseModel({
       organizer: user.id,
       artist,

@@ -27,7 +27,7 @@ export function verifyJwt(token: string): Steve.LoggedUser {
  */
 export const issueAuthentication = (
   payload: Steve.LoggedUser
-): { token_type: "Bearer"; expires_in: number; access_token: string } => {
+): Steve.AuthenticationResponse => {
   return {
     token_type: "Bearer",
     expires_in: EXPIRATION,

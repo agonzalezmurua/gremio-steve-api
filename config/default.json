@@ -21,7 +21,6 @@
     "base_url": "https://osu.ppy.sh",
     "auth_url": "{base_url}/oauth/authorize",
     "api": {
-      "client_id": 5165,
       "path": "/api/v2"
     }
   },

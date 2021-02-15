@@ -35,6 +35,19 @@ export async function configure(app: Application): Promise<void> {
             name: "Authorization",
           },
         },
+        models: {
+          "Authentication.Response": {
+            description: "Authentication values for response",
+            properties: {
+              access_token: {
+                type: swagger.SwaggerDefinitionConstant.STRING,
+              },
+              token_type: {
+                type: swagger.SwaggerDefinitionConstant.STRING,
+              },
+            },
+          },
+        },
       },
     })
   );

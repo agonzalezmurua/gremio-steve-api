@@ -6,7 +6,11 @@ const router = express.Router();
 
 router.get("/", JourneyController.searchJourneys);
 router.post("/", ensureAuthenticated, JourneyController.createOneJourney);
-router.get("/mine", ensureAuthenticated, JourneyController.getMyJourneys);
+router.get(
+  "/mine/:status?",
+  ensureAuthenticated,
+  JourneyController.getMyJourneys
+);
 
 router.get("/:id", JourneyController.getOneJourneyById);
 router.delete(

@@ -1,9 +1,5 @@
 import { Router, Application, Request, Response, NextFunction } from "express";
 import { verifyJwt } from "_/services/oauth/authentication";
-import {
-  requestAuthorization as osuAuthorization,
-  handleAuthentication as osuAuthentication,
-} from "_/services/oauth/providers/osu";
 
 /**
  * Configures a router with 'oauth' prefix that handles
@@ -11,10 +7,6 @@ import {
  */
 export async function configure(app: Application): Promise<void> {
   const router = Router();
-
-  router.get("/osu", osuAuthorization);
-  router.post("/osu/token", osuAuthentication);
-
   app.use((req: Request, res: Response, next: NextFunction) => {
     req.isAuthenticated = function (): boolean {
       const authorization = req.header("authorization");

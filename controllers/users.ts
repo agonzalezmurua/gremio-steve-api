@@ -49,6 +49,45 @@ class UserController {
         res.json(users.map((schema) => new User(schema)));
       });
   }
+
+  @ApiOperationGet({
+    path: "/:id",
+    summary: "Get a user by id",
+    parameters: {
+      path: {
+        id: {
+          type: SwaggerDefinitionConstant.STRING,
+        },
+      },
+    },
+    description: "Obtains a user by id",
+    responses: {
+      200: {
+        model: "User",
+      },
+    },
+  })
+  public getOneUserById(req: Request<{ id: string }>, res: Response) {
+    UserMongooseModel.findById(req.params.id).then((user) =>
+      res.json(new User(user))
+    );
+  }
+
+  @ApiOperationGet({
+    path: "/myself",
+    summary: "Get current user",
+    description: "Obtains the current logged user",
+    responses: {
+      200: {
+        model: "User",
+      },
+    },
+  })
+  public getMyUser(req: Request, res: Response) {
+    UserMongooseModel.findById(req.user.id).then((user) =>
+      res.json(new User(user))
+    );
+  }
 }
 
 export default new UserController();
