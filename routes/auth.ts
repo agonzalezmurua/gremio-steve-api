@@ -4,6 +4,6 @@ import AuthController from "_/controllers/auth";
 const router = express.Router();
 
 router.get("/osu", AuthController.requestAuthorization);
-router.post("/osu/callback", AuthController.requestAuthorization);
+router.post("/osu/callback", AuthController.authenticateUser);
 
 export default router;

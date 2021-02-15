@@ -11,7 +11,7 @@
     "host": "localhost",
     "protocol": "http",
     "port": 3000,
-    "auth_redirect_url": "{protocol}://{host}:{port}/auth/osu/callback",
+    "auth_redirect_url": "{protocol}://{host}:{port}/#/auth/osu/callback",
     "url": "{protocol}://{host}:{port}"
   },
   "cors": {

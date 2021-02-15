@@ -35,14 +35,23 @@ class AuthController {
       },
     },
   })
-  public requestAuthorization(req: Request, res: Response) {
-    const parameters = {
+  public requestAuthorization(
+    req: Request<unknown, unknown, unknown, { state?: string }>,
+    res: Response
+  ) {
+    const parameters: { [key: string]: string } = {
       client_id: process.env.OSU_API_CLIENTID, // The Client ID you received when you registered
       redirect_uri: redirect_uri, // The URL in your application where users will be sent after authorization. This must match the registered Application Callback URL exactly.
       response_type: "code", // This should always be code when requesting authorization.
       scope: ["identify"].join(" "), // A space-delimited string of scopes.
     };
+
+    if (req.query.state) {
+      parameters.state = req.query.state;
+    }
+
     const url = new URL(format(config.get("osu.auth_url"), config.get("osu")));
+
     Object.entries(parameters).forEach(([name, value]) => {
       url.searchParams.append(name, value);
     });
