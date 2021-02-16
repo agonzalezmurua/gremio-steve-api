@@ -1,7 +1,7 @@
 import * as mongoose from "mongoose";
 import mongoose_fuzzy_searching = require("mongoose-fuzzy-searching");
 
-import { IJourney } from "_/schemas/journey";
+import { IJourney, IJourneyDocument } from "_/schemas/journey";
 import { Utils } from "_/types/mongoose_aux";
 
 /** Available user's roles */
@@ -50,7 +50,10 @@ export interface IUser {
 }
 
 /** Document interface of user */
-export interface IUserDocument extends IUser, mongoose.Document {}
+export interface IUserDocument extends IUser, mongoose.Document {
+  journeys: IJourneyDocument[];
+  queue: IJourneyDocument[];
+}
 
 /** Schema fields definition for user */
 const UserSchemaFields: Utils.SchemaFields<IUser> = {

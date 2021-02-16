@@ -1,5 +1,5 @@
 import * as mongoose from "mongoose";
-import { NextFunction, Request, Response } from "express";
+import { Request, Response } from "express";
 import {
   ApiOperationGet,
   ApiPath,
@@ -8,9 +8,6 @@ import {
 
 import User from "_/models/user";
 import UserSchema from "_/schemas/user";
-import { JourneyMongooseModel } from "./journey";
-import { JourneyStatus } from "_/schemas/journey";
-import Journey from "_/models/journey";
 
 export const UserMongooseModel = mongoose.model("User", UserSchema);
 
@@ -68,9 +65,10 @@ class UserController {
     },
   })
   public getOneUserById(req: Request<{ id: string }>, res: Response) {
-    UserMongooseModel.findById(req.params.id).then((user) =>
-      res.json(new User(user))
-    );
+    UserMongooseModel.findById(req.params.id)
+      .populate("journeys")
+      .exec()
+      .then((user) => res.json(new User(user)));
   }
 
   @ApiOperationGet({
@@ -84,9 +82,10 @@ class UserController {
     },
   })
   public getMyUser(req: Request, res: Response) {
-    UserMongooseModel.findById(req.user.id).then((user) =>
-      res.json(new User(user))
-    );
+    UserMongooseModel.findById(req.user.id)
+      .populate("journeys")
+      .exec()
+      .then((user) => res.json(new User(user)));
   }
 }
 

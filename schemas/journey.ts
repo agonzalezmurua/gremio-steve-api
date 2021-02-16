@@ -1,13 +1,15 @@
 import * as mongoose from "mongoose";
 import mongoose_fuzzy_searching = require("mongoose-fuzzy-searching");
-import { Utils } from "_/types/mongoose_aux";
 import * as _ from "lodash";
+
+import { Utils } from "_/types/mongoose_aux";
 import BeatmapSchema, {
   IBeatmap,
   BeatmapModes,
   IBeatmapDocument,
 } from "_/schemas/journey.beatmap";
 import { IUser, IUserDocument } from "_/schemas/user";
+import { UserMongooseModel } from "_/controllers/users";
 
 /** Available journy statuses */
 export enum JourneyStatus {
@@ -110,6 +112,18 @@ const JourneySchema = new mongoose.Schema<IJourneyDocument>(
   JourneySchemaFields,
   { timestamps: { createdAt: "created_at", updatedAt: "updated_at" } }
 );
+
+JourneySchema.post("save", async function () {
+  const user = await UserMongooseModel.findById(this.organizer._id).exec();
+  user.journeys.push(this._id);
+  user.save();
+});
+
+JourneySchema.post("remove", async function () {
+  const user = await UserMongooseModel.findById(this.organizer._id).exec();
+  user.journeys.filter(({ _id }) => _id === this._id);
+  user.save();
+});
 
 JourneySchema.plugin(mongoose_fuzzy_searching, {
   fields: [
