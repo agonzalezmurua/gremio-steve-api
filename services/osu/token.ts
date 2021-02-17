@@ -18,7 +18,7 @@ export async function fetchToken(): Promise<string> {
       "/oauth/token",
       encode({
         client_id: process.env.OSU_API_CLIENTID,
-        client_secret: process.env.OSU_API_CLIENTSECRET,
+        client_secret: process.env.OSU_API_CLIENT_SECRET,
         grant_type: "client_credentials",
         scope: "public",
       })

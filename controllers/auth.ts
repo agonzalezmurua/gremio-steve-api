@@ -91,7 +91,7 @@ class AuthController {
     const payload = {
       code: code, //The code you received.
       client_id: process.env.OSU_API_CLIENTID, // The client ID of your application.
-      client_secret: process.env.OSU_API_CLIENTSECRET, //	The client secret of your application.
+      client_secret: process.env.OSU_API_CLIENT_SECRET, //	The client secret of your application.
       grant_type: "authorization_code", //	This must always be authorization_code
       redirect_uri: redirect_uri, //	The URL in your application where users will be sent after authorization.
     };
