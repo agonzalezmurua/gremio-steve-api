@@ -45,6 +45,9 @@ export async function configure(app: Application): Promise<void> {
               token_type: {
                 type: swagger.SwaggerDefinitionConstant.STRING,
               },
+              expires_in: {
+                type: swagger.SwaggerDefinitionConstant.NUMBER,
+              },
             },
           },
         },
