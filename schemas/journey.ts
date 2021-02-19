@@ -1,11 +1,9 @@
 import * as mongoose from "mongoose";
 import mongoose_fuzzy_searching = require("mongoose-fuzzy-searching");
-import * as _ from "lodash";
 
 import { Utils } from "_/types/mongoose_aux";
 import BeatmapSchema, {
   IBeatmap,
-  BeatmapModes,
   IBeatmapDocument,
 } from "_/schemas/journey.beatmap";
 import { IUser, IUserDocument } from "_/schemas/user";
@@ -37,7 +35,6 @@ export interface IJourney {
   thumbnail_url: string;
   banner_url: string;
   metadata: IMetadata;
-  modes: BeatmapModes[];
   description?: string;
   status: JourneyStatus;
   is_private: boolean;
@@ -81,15 +78,6 @@ const JourneySchemaFields: Utils.SchemaFields<IJourney> = {
       },
     },
     duration: Number,
-  },
-  modes: {
-    type: [String],
-    enum: Object.values(BeatmapModes),
-    virtual: true,
-    get: function () {
-      return _.uniq((this as IJourneyDocument).beatmaps.map((b) => b.mode));
-    },
-    default: [],
   },
   description: String,
   status: {

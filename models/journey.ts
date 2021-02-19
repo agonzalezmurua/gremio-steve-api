@@ -4,14 +4,11 @@ import {
   SwaggerDefinitionConstant,
 } from "swagger-express-ts";
 
-import {
-  IBeatmap,
-  IBeatmapDocument,
-  BeatmapModes,
-} from "../schemas/journey.beatmap";
+import { IBeatmap, IBeatmapDocument } from "../schemas/journey.beatmap";
 import { IJourney, IJourneyDocument, JourneyStatus } from "_/schemas/journey";
 import { IUser } from "_/schemas/user";
 
+import User from "_/models/user";
 import JourneyMetadata from "_/models/journey.metadata";
 import Beatmap from "_/models/journey.beatmap";
 
@@ -21,11 +18,12 @@ class Journey implements IJourney {
     this.id = document.id;
     this.title = document.title;
     this.artist = document.artist;
-    this.organizer = document.organizer;
+    this.organizer = document.organizer
+      ? new User(document.organizer)
+      : undefined;
     this.thumbnail_url = document.thumbnail_url;
     this.banner_url = document.banner_url;
     this.metadata = new JourneyMetadata(document.metadata);
-    this.modes = document.modes;
     this.description = document.description;
     this.status = document.status;
     this.is_private = document.is_private;
@@ -55,13 +53,6 @@ class Journey implements IJourney {
 
   @ApiModelProperty({ model: "Journey.Metadata" })
   public metadata: JourneyMetadata;
-
-  @ApiModelProperty({
-    type: SwaggerDefinitionConstant.ARRAY,
-    itemType: SwaggerDefinitionConstant.STRING,
-    enum: Object.values(BeatmapModes),
-  })
-  public modes: BeatmapModes[];
 
   @ApiModelProperty()
   public description?: string;

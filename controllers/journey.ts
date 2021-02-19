@@ -12,6 +12,7 @@ import Journey from "_/models/journey";
 import JourneySchema, { IJourney, JourneyStatus } from "_/schemas/journey";
 import authenticationResponses from "_/constants/swagger.authenticationResponses";
 import { UnauthorizedError } from "_/utils/errors";
+import { UserMongooseModel } from "./users";
 
 export const JourneyMongooseModel = mongoose.model("Journey", JourneySchema);
 
@@ -94,10 +95,44 @@ class JourneyController {
             organizer: req.user.id,
           }
     )
+      .populate("organizer")
       .exec()
       .then((journeys) =>
         res.json(journeys.map((journey) => new Journey(journey)))
       )
+      .catch((e) => next(e));
+  }
+
+  @ApiOperationGet({
+    path: "/queue",
+    description: "Get journeys that were added into the user's queue",
+    summary: "Get my queue",
+    security: {
+      bearerAuth: [],
+    },
+    responses: {
+      200: {
+        type: SwaggerDefinitionConstant.ARRAY,
+        model: "Journey",
+      },
+    },
+  })
+  public getMyQueue(req: Request, res: Response, next: NextFunction) {
+    UserMongooseModel.findById(req.user.id)
+      .select("queue")
+      .exec()
+      .then(({ queue }) =>
+        JourneyMongooseModel.find({
+          _id: {
+            $in: queue,
+          },
+        })
+          .populate("organizer")
+          .exec()
+      )
+      .then((journeys) => {
+        res.json(journeys.map((journey) => new Journey(journey)));
+      })
       .catch((e) => next(e));
   }
 

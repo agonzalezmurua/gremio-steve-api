@@ -66,7 +66,10 @@ class UserController {
   })
   public getOneUserById(req: Request<{ id: string }>, res: Response) {
     UserMongooseModel.findById(req.params.id)
-      .populate("journeys")
+      .populate([
+        { path: "journeys", select: "-organizer" },
+        { path: "queues", select: "-organizer" },
+      ])
       .exec()
       .then((user) => res.json(new User(user)));
   }

@@ -40,19 +40,19 @@ export interface IUser {
   avatar_url: string;
   banner_url?: string;
   availability: IAvailability;
-  journeys: IJourney[];
+  journeys?: IJourney[];
   community_role: string;
   role: UserRole;
   preferences: IUserPreferences;
   status: UserStatus;
   description?: string;
-  queue: IJourney[];
+  queue?: IJourney[];
 }
 
 /** Document interface of user */
 export interface IUserDocument extends IUser, mongoose.Document {
-  journeys: IJourneyDocument[];
-  queue: IJourneyDocument[];
+  journeys?: IJourneyDocument[];
+  queue?: IJourneyDocument[];
 }
 
 /** Schema fields definition for user */
