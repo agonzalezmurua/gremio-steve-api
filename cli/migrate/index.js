@@ -10,7 +10,7 @@ function flattenArguments(dynamic) {
     Object.assign(
       {},
       {
-        "migration-dir": "migrations",
+        "migrations-dir": "migrations",
         compiler: "ts:./cli/migrate/ts-compiler.js",
       },
       dynamic
@@ -40,7 +40,7 @@ yargs(hideBin(process.argv))
   .command(
     "up [name]",
     "Migrate up to a given migration",
-    () =>
+    (yargs) =>
       yargs.positional("name", {
         describe: "title of the migration",
         type: "string",
@@ -54,7 +54,7 @@ yargs(hideBin(process.argv))
   .command(
     "down [name]",
     "Migrate down to a given migration",
-    () =>
+    (yargs) =>
       yargs.positional("name", {
         describe: "title of the migration",
         type: "string",
