@@ -1,4 +1,3 @@
-import * as mongoose from "mongoose";
 import { Request, Response } from "express";
 import {
   ApiOperationGet,
@@ -7,9 +6,7 @@ import {
 } from "swagger-express-ts";
 
 import User from "_/models/user";
-import UserSchema from "_/schemas/user";
-
-export const UserMongooseModel = mongoose.model("User", UserSchema);
+import { UserMongoose } from "./mongo/user.mongoose";
 
 @ApiPath({
   path: "/users",
@@ -40,7 +37,7 @@ class UserController {
       query: { search = "" },
     } = req;
 
-    UserMongooseModel.fuzzySearch(search as string)
+    UserMongoose.fuzzySearch(search as string)
       .select("-confidenceScore")
       .then((users) => {
         res.json(users.map((schema) => new User(schema)));
@@ -65,7 +62,7 @@ class UserController {
     },
   })
   public getOneUserById(req: Request<{ id: string }>, res: Response) {
-    UserMongooseModel.findById(req.params.id)
+    UserMongoose.findById(req.params.id)
       .populate([
         { path: "journeys", select: "-organizer" },
         { path: "queues", select: "-organizer" },
@@ -85,7 +82,7 @@ class UserController {
     },
   })
   public getMyUser(req: Request, res: Response) {
-    UserMongooseModel.findById(req.user.id)
+    UserMongoose.findById(req.user.id)
       .populate("journeys")
       .exec()
       .then((user) => res.json(new User(user)));

@@ -8,7 +8,7 @@ import config = require("config");
 import prefixes from "./constants/consola.prefixes";
 import { configure as configureOsuClient } from "./services/osu.configure";
 import { configure as configureDatabase } from "./services/database.configure";
-import { configure as configureOauth } from "./services/oauth.configure";
+import { configure as configureOauth } from "./services/auth.configure";
 import { configure as configureRoutes } from "./services/routes.configure";
 import { configure as configureSwagger } from "./services/swagger.configure";
 
@@ -35,9 +35,9 @@ export default async function setup(app: Application): Promise<void> {
       origin: config.get("cors.allowed_origin"),
     })
   );
-  app.use(cookieParser());
-  app.use(bodyParser.json());
-  app.use(bodyParser.urlencoded({ extended: true }));
+  app.use(cookieParser()); // Add cookies suport
+  app.use(bodyParser.json()); // Add json on body support
+  app.use(bodyParser.urlencoded({ extended: true })); // Add support to read x-www-form-urlencoded form data
   app.use(trafficLogger);
 
   await Promise.all([

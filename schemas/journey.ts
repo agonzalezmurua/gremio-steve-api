@@ -7,7 +7,7 @@ import BeatmapSchema, {
   IBeatmapDocument,
 } from "_/schemas/journey.beatmap";
 import { IUser, IUserDocument } from "_/schemas/user";
-import { UserMongooseModel } from "_/controllers/users";
+import { UserMongoose } from "_/controllers/mongo/user.mongoose";
 
 /** Available journy statuses */
 export enum JourneyStatus {
@@ -102,13 +102,13 @@ const JourneySchema = new mongoose.Schema<IJourneyDocument>(
 );
 
 JourneySchema.post("save", async function () {
-  const user = await UserMongooseModel.findById(this.organizer._id).exec();
+  const user = await UserMongoose.findById(this.organizer._id).exec();
   user.journeys.push(this._id);
   user.save();
 });
 
 JourneySchema.post("remove", async function () {
-  const user = await UserMongooseModel.findById(this.organizer._id).exec();
+  const user = await UserMongoose.findById(this.organizer._id).exec();
   user.journeys.filter(({ _id }) => _id === this._id);
   user.save();
 });

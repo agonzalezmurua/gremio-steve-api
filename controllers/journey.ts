@@ -1,4 +1,3 @@
-import * as mongoose from "mongoose";
 import { NextFunction, Request, Response } from "express";
 import {
   ApiOperationDelete,
@@ -9,12 +8,11 @@ import {
 } from "swagger-express-ts";
 
 import Journey from "_/models/journey";
-import JourneySchema, { IJourney, JourneyStatus } from "_/schemas/journey";
+import { IJourney, JourneyStatus } from "_/schemas/journey";
 import authenticationResponses from "_/constants/swagger.authenticationResponses";
 import { UnauthorizedError } from "_/utils/errors";
-import { UserMongooseModel } from "./users";
-
-export const JourneyMongooseModel = mongoose.model("Journey", JourneySchema);
+import { UserMongoose } from "./mongo/user.mongoose";
+import { JourneyMongoose } from "./mongo/journey.mongoose";
 
 @ApiPath({
   path: "/journeys",
@@ -45,7 +43,7 @@ class JourneyController {
       query: { search = "" },
     } = req;
 
-    JourneyMongooseModel.fuzzySearch(search as string)
+    JourneyMongoose.fuzzySearch(search as string)
       .select("-confidenceScore")
       .populate({ path: "organizer", select: "-journeys -queue" })
       .exec()
@@ -85,7 +83,7 @@ class JourneyController {
     res: Response,
     next: NextFunction
   ) {
-    JourneyMongooseModel.find(
+    JourneyMongoose.find(
       req.query.status
         ? {
             organizer: req.user.id,
@@ -118,11 +116,11 @@ class JourneyController {
     },
   })
   public getMyQueue(req: Request, res: Response, next: NextFunction) {
-    UserMongooseModel.findById(req.user.id)
+    UserMongoose.findById(req.user.id)
       .select("queue")
       .exec()
       .then(({ queue }) =>
-        JourneyMongooseModel.find({
+        JourneyMongoose.find({
           _id: {
             $in: queue,
           },
@@ -157,7 +155,7 @@ class JourneyController {
     res: Response,
     next: NextFunction
   ) {
-    JourneyMongooseModel.findById(req.params.id)
+    JourneyMongoose.findById(req.params.id)
       .populate("organizer")
       .exec()
       .then((journey) => res.json(journey))
@@ -198,7 +196,7 @@ class JourneyController {
       beatmaps = [],
       osu_link,
     } = journey;
-    new JourneyMongooseModel({
+    new JourneyMongoose({
       organizer: user.id,
       artist,
       banner_url,
@@ -250,7 +248,7 @@ class JourneyController {
     res: Response,
     next: NextFunction
   ) {
-    JourneyMongooseModel.findById(req.params.id)
+    JourneyMongoose.findById(req.params.id)
       .populate("organizer")
       .exec()
       .then((journey) => {

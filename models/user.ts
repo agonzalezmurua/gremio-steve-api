@@ -10,6 +10,7 @@ import { IUser, IUserDocument, UserRole, UserStatus } from "_/schemas/user";
 import UserPreferences from "_/models/user.preferences";
 import { UserAvailability } from "_/models/user.availability";
 import Journey from "_/models/journey";
+import mongoose = require("mongoose");
 
 @ApiModel()
 export default class User implements IUser {
@@ -94,4 +95,7 @@ export default class User implements IUser {
 
   @ApiModelProperty({ model: "Journey", type: SwaggerDefinitionConstant.ARRAY })
   public queue: Journey[];
+
+  email: string;
+  token_version: mongoose.Types.ObjectId;
 }

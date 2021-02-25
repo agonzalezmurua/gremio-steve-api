@@ -1,7 +1,7 @@
 import { IUserDocument } from "../schemas/user";
 
 declare namespace Steve {
-  export type LoggedUser = Pick<
+  export type LoggedUserTokenPayload = Pick<
     IUserDocument,
     "id" | "osu_id" | "name" | "avatar_url"
   >;

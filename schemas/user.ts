@@ -47,6 +47,8 @@ export interface IUser {
   status: UserStatus;
   description?: string;
   queue?: IJourney[];
+  email: string;
+  token_version: mongoose.Types.ObjectId;
 }
 
 /** Document interface of user */
@@ -59,6 +61,7 @@ export interface IUserDocument extends IUser, mongoose.Document {
 const UserSchemaFields: Utils.SchemaFields<IUser> = {
   osu_id: { type: String, required: true },
   name: { type: String, required: true },
+  email: { type: String, required: true, select: false },
   active: { type: Boolean, default: true },
   avatar_url: { type: String, required: true },
   banner_url: String,
@@ -90,6 +93,11 @@ const UserSchemaFields: Utils.SchemaFields<IUser> = {
     type: String,
     enum: Object.values(UserStatus),
     default: UserStatus.available,
+  },
+  token_version: {
+    type: mongoose.Schema.Types.ObjectId,
+    select: false,
+    default: () => mongoose.Types.ObjectId(),
   },
 };
 

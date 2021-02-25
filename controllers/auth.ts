@@ -12,9 +12,10 @@ import {
 } from "swagger-express-ts";
 
 import prefixes from "_/constants/consola.prefixes";
-import { UserMongooseModel } from "./users";
-import { issueAuthentication } from "_/services/oauth/authentication";
+import { UserMongoose } from "./mongo/user.mongoose";
+import { sendAuthenticationToken } from "_/services/internal/auth/identity";
 import { Steve } from "_/types/steve-api";
+import { sendRefreshToken } from "_/services/internal/auth/refresh";
 
 const redirect_uri = format(
   config.get("web.auth_redirect_url"),
@@ -58,6 +59,13 @@ class AuthController {
     res.redirect(url.toString());
   }
 
+  /**
+   * Send request to osu in order to retrieve some the osu user's information,
+   * creating the user document if not present or updating it
+   *
+   * @param req
+   * @param res
+   */
   @ApiOperationPost({
     path: "/osu/callback",
     parameters: {
@@ -82,49 +90,67 @@ class AuthController {
     req: Request<unknown, unknown, { authentication: { code: string } }>,
     res: Response<Steve.AuthenticationResponse>
   ) {
+    /** Isolated axios instance, for this request only */
     const client = axios.create({
       baseURL: config.get("osu.base_url"),
     });
-    const {
-      authentication: { code },
-    } = req.body;
-    const payload = {
-      code: code, //The code you received.
-      client_id: process.env.OSU_API_CLIENTID, // The client ID of your application.
-      client_secret: process.env.OSU_API_CLIENT_SECRET, //	The client secret of your application.
-      grant_type: "authorization_code", //	This must always be authorization_code
-      redirect_uri: redirect_uri, //	The URL in your application where users will be sent after authorization.
-    };
+
     consola.debug(prefixes.oauth_osu, "sending oauth code to api");
+
+    // Request to external osu service to attempt to authenticate and retrieve
+    // - osu id
+    // - user email
     client
-      .post("/oauth/token", encode(payload))
+      .post(
+        "/oauth/token",
+        // Auth request payload
+        encode({
+          code: req.body.authentication.code, //The code you received.
+          client_id: process.env.OSU_API_CLIENTID, // The client ID of the application.
+          client_secret: process.env.OSU_API_CLIENT_SECRET, //	The client secret of the application.
+          grant_type: "authorization_code", //	This must always be "authorization_code"
+          redirect_uri: redirect_uri, //	The configured URL where users will be sent after authorization.
+        })
+      )
       .then(async ({ data: { token_type, access_token } }) => {
         consola.debug(
           prefixes.oauth_osu,
           "adding interceptor for further requests"
         );
-        // Add interceptor for further requests
+        // Add interceptor for further requests that uses the provided access token
         client.interceptors.request.use((config) => {
           config.headers = {
             common: { Authorization: `${token_type} ${access_token}` },
           };
           return config;
         });
+
         consola.debug(prefixes.oauth_osu, "obtaining user information");
+
+        // osu's user information
         const { data: me } = await client.get(
           `${config.get("osu.api.path")}/me`
         );
-        // Revoke current token to prevent further accidental usage
+
         consola.debug(prefixes.oauth_osu, "revoking osu token");
+
+        // Since we are only using the token to obtain the user's info\
+        // We revoke the token to prevent further accidental actions
         await client.delete(
           `${config.get("osu.api.path")}/oauth/tokens/current`
         );
+
         consola.debug(prefixes.oauth_osu, "retrieving user from database");
-        let user = await UserMongooseModel.findOne({ osu_id: me.id }).exec();
+
+        let user = await UserMongoose.findOne({ osu_id: me.id }).exec();
+
+        // Create user document if it doesn't exist
         if (!user) {
           consola.debug(prefixes.oauth_osu, "user does not exist, creating");
-          user = new UserMongooseModel();
+          user = new UserMongoose();
         }
+
+        // Update the user
         user = Object.assign(user, {
           osu_id: me.id,
           name: me.username,
@@ -132,18 +158,20 @@ class AuthController {
           banner_url: me.custom_url || me.cover.url,
         });
         await user.save();
-        consola.debug(prefixes.oauth_osu, "issuing authentication token");
-        res.json(
-          issueAuthentication({
-            id: user.id,
-            osu_id: user.osu_id,
-            avatar_url: user.avatar_url,
-            name: user.name,
-          })
+
+        consola.debug(
+          prefixes.oauth_osu,
+          "issuing authentication and refresh tokens"
         );
+
+        await sendRefreshToken(res, user).catch((error) =>
+          consola.error(prefixes.oauth, "failed to send refresh token", error)
+        );
+
+        sendAuthenticationToken(res, user);
       })
       .catch((error) => {
-        consola.error(error);
+        consola.error(prefixes.oauth, "failed to authenticate", error);
         res.status(error.response ? error.response.status : 500);
         res.json(error.response ? error.response.data : null);
       });
