@@ -1,6 +1,6 @@
-import * as DB from "_/controllers/mongo";
+import * as DB from "../controllers/mongo";
 
-import { configure } from "_/services/database.configure";
+import { configure } from "../services/database.configure";
 
 /* Code your update script here! */
 export const up = async (): Promise<void> => {

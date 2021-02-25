@@ -1,2 +1,4 @@
 node_modules
 dist
+# template file, we dont really want to lint this
+cli/migrate/template.ts
