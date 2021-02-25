@@ -7,7 +7,7 @@ import BeatmapSchema, {
   IBeatmapDocument,
 } from "_/schemas/journey.beatmap";
 import { IUser, IUserDocument } from "_/schemas/user";
-import { UserMongoose } from "_/controllers/mongo/user.mongoose";
+import UserMongoose from "_/controllers/mongo/user";
 
 /** Available journy statuses */
 export enum JourneyStatus {

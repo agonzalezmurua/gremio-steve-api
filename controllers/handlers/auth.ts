@@ -12,7 +12,7 @@ import {
 } from "swagger-express-ts";
 
 import prefixes from "_/constants/consola.prefixes";
-import { UserMongoose } from "./mongo/user.mongoose";
+import UserMongoose from "../mongo/user";
 import { sendAuthenticationToken } from "_/services/internal/auth/identity";
 import { Steve } from "_/types/steve-api";
 import { sendRefreshToken } from "_/services/internal/auth/refresh";

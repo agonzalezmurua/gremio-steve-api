@@ -5,8 +5,8 @@ import {
   SwaggerDefinitionConstant,
 } from "swagger-express-ts";
 
-import User from "_/models/user";
-import { UserMongoose } from "./mongo/user.mongoose";
+import UserModel from "_/models/user";
+import UserMongoose from "_/controllers/mongo/user";
 
 @ApiPath({
   path: "/users",
@@ -40,7 +40,7 @@ class UserController {
     UserMongoose.fuzzySearch(search as string)
       .select("-confidenceScore")
       .then((users) => {
-        res.json(users.map((schema) => new User(schema)));
+        res.json(users.map((schema) => new UserModel(schema)));
       });
   }
 
@@ -68,7 +68,7 @@ class UserController {
         { path: "queues", select: "-organizer" },
       ])
       .exec()
-      .then((user) => res.json(new User(user)));
+      .then((user) => res.json(new UserModel(user)));
   }
 
   @ApiOperationGet({
@@ -85,7 +85,7 @@ class UserController {
     UserMongoose.findById(req.user.id)
       .populate("journeys")
       .exec()
-      .then((user) => res.json(new User(user)));
+      .then((user) => res.json(new UserModel(user)));
   }
 }
 

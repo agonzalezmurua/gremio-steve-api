@@ -3,8 +3,8 @@ import CryptoJS = require("crypto-js");
 import mongoose = require("mongoose");
 import { Response } from "express";
 
-import { RefreshTokenMongoose } from "_/controllers/mongo/refresh_token.mongoose";
-import { UserMongoose } from "_/controllers/mongo/user.mongoose";
+import RefreshTokenMongooseModel from "_/controllers/mongo/refresh_token";
+import UserMongoose from "_/controllers/mongo/user";
 
 import { IUserDocument } from "_/schemas/user";
 
@@ -63,7 +63,7 @@ export const createNewRefreshTokenDocument = async (
     encrypted_token: encrypt(payload),
   };
 
-  const refreshToken = await new RefreshTokenMongoose(doc).save({
+  const refreshToken = await new RefreshTokenMongooseModel(doc).save({
     validateBeforeSave: true,
   });
 
@@ -94,7 +94,7 @@ export const revokeRefreshToken = async (id: string): Promise<void> => {
     _id = decrypt<string>(id);
   }
 
-  await RefreshTokenMongoose.findByIdAndDelete(_id).exec();
+  await RefreshTokenMongooseModel.findByIdAndDelete(_id).exec();
   return;
 };
 
@@ -117,7 +117,9 @@ export const validateRefreshToken = async (
     return false;
   }
 
-  const document = await RefreshTokenMongoose.findById(id).populate("owner");
+  const document = await RefreshTokenMongooseModel.findById(id).populate(
+    "owner"
+  );
 
   if (!document) {
     return false;

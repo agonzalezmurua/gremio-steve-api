@@ -11,8 +11,8 @@ import Journey from "_/models/journey";
 import { IJourney, JourneyStatus } from "_/schemas/journey";
 import authenticationResponses from "_/constants/swagger.authenticationResponses";
 import { UnauthorizedError } from "_/utils/errors";
-import { UserMongoose } from "./mongo/user.mongoose";
-import { JourneyMongoose } from "./mongo/journey.mongoose";
+import UserMongoose from "_/controllers/mongo/user";
+import JourneyMongoose from "_/controllers/mongo/journey";
 
 @ApiPath({
   path: "/journeys",

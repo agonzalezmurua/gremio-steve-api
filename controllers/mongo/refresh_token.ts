@@ -3,7 +3,9 @@ import RefreshTokenSchema, {
   IRefreshTokenDocument,
 } from "_/schemas/refresh_token";
 
-export const RefreshTokenMongoose = mongoose.model<IRefreshTokenDocument>(
+const RefreshTokenMongooseModel = mongoose.model<IRefreshTokenDocument>(
   "RefreshToken",
   RefreshTokenSchema
 );
+
+export default RefreshTokenMongooseModel;
