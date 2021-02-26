@@ -6,5 +6,6 @@
 /* eslint-disable no-undef */
 
 const tsNode = require("ts-node");
+require("tsconfig-paths/register");
 
 module.exports = tsNode.register;

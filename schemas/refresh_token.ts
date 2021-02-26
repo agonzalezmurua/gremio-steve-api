@@ -41,6 +41,6 @@ const RefreshTokenSchemaFields: Utils.SchemaFields<IRefreshToken> = {
 export default new mongoose.Schema<IRefreshTokenDocument>(
   RefreshTokenSchemaFields,
   {
-    timestamps: { createdAt: "created_at" },
+    timestamps: { createdAt: "created_at", updatedAt: "updated_at" },
   }
 );

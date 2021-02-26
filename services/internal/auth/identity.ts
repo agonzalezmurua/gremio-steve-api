@@ -5,7 +5,7 @@ import { Steve } from "_/types/steve-api";
 
 const SECRET = process.env.APP_AUTH_SECRET;
 const ALGORITHM = "HS256";
-const EXPIRATION = 60 * 60 * 2; // 2 hours
+const EXPIRATION = 60 * 60 * 1; // 1 hour
 
 /** Alias to string, used to help understand references to this particular token across the APP */
 export type IdentityToken = string;
@@ -30,12 +30,16 @@ export function verifyJwtSignature(
 
 /**
  * Sends a response with a signed token with the corresponding user authentication token
+ *
+ * Ending the given request
+ *
  * @param payload Authentication payload
  */
 export const sendAuthenticationToken = (
   response: Response,
   user: IUserDocument
 ): void => {
+  response.status(200);
   response.json({
     token_type: "Bearer",
     expires_in: EXPIRATION,
@@ -46,4 +50,5 @@ export const sendAuthenticationToken = (
       name: user.name,
     }),
   });
+  response.end();
 };

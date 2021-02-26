@@ -2,7 +2,7 @@ import { Application } from "express";
 import colors = require("colors");
 import cors from "cors";
 import bodyParser = require("body-parser");
-import cookieParser from "cookie-parser";
+import cookieParser = require("cookie-parser");
 import config = require("config");
 
 import prefixes from "./constants/consola.prefixes";

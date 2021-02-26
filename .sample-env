@@ -9,5 +9,3 @@ OSU_API_CLIENT_SECRET=
 # DATABASE
 DATABASE_USERNAME=
 DATABASE_PASSWORD=
-## MIGRATE
-MIGRATE_dbConnectionUri=mongodb://localhost:27017/gremio-steve

@@ -1,7 +1,7 @@
 // Encryption library
 import CryptoJS = require("crypto-js");
 import mongoose = require("mongoose");
-import { Response } from "express";
+import { Request, Response } from "express";
 
 import RefreshTokenMongooseModel from "_/controllers/mongo/refresh_token";
 import UserMongoose from "_/controllers/mongo/user";
@@ -9,11 +9,11 @@ import UserMongoose from "_/controllers/mongo/user";
 import { IUserDocument } from "_/schemas/user";
 
 const SECRET = process.env.APP_AUTH_REFRESH_SECRET;
-const EXPIRATION = 60 * 60 * 24 * 30; // 14 days
+const EXPIRATION = 60 * 60 * 24 * 30; // 30 days
 const COOKIE_NAME = "steve-session";
 
 type UnencryptedRefreshToken = {
-  version: mongoose.Types.ObjectId;
+  version: string;
 };
 
 /**
@@ -21,14 +21,11 @@ type UnencryptedRefreshToken = {
  * @param value Information to encrypt
  */
 const encrypt = <T>(value: T): string => {
-  return CryptoJS.AES.encrypt(
-    JSON.stringify(value),
-    SECRET
-  ).ciphertext.toString(CryptoJS.enc.Utf8);
+  return CryptoJS.AES.encrypt(JSON.stringify(value), SECRET).toString();
 };
 
 /**
- *
+ * Decrypts a given string
  */
 const decrypt = <T>(cipher: string): T | null => {
   try {
@@ -52,18 +49,21 @@ export const createNewRefreshTokenDocument = async (
   friendlyName: string,
   owner: IUserDocument
 ): Promise<string> => {
+  const { token_version } = await UserMongoose.findById(owner.id).select(
+    "+token_version"
+  );
   const payload: UnencryptedRefreshToken = {
-    version: owner.token_version,
+    version: String(token_version),
   };
 
-  const doc = {
+  const document = {
     expires_at: new Date(Date.now() + EXPIRATION),
     owner: owner.id,
     friendly_name: friendlyName,
-    encrypted_token: encrypt(payload),
+    encrypted_value: encrypt(payload),
   };
 
-  const refreshToken = await new RefreshTokenMongooseModel(doc).save({
+  const refreshToken = await new RefreshTokenMongooseModel(document).save({
     validateBeforeSave: true,
   });
 
@@ -86,17 +86,25 @@ export const revokeAllRefreshTokens = async (userId: string): Promise<void> => {
  * @param id It can be either a encrypted id or an actual id
  */
 export const revokeRefreshToken = async (id: string): Promise<void> => {
-  let _id;
-
-  if (mongoose.isValidObjectId(id)) {
-    _id = id;
-  } else {
-    _id = decrypt<string>(id);
-  }
-
-  await RefreshTokenMongooseModel.findByIdAndDelete(_id).exec();
+  await RefreshTokenMongooseModel.findByIdAndDelete(parseId(id)).exec();
   return;
 };
+
+/**
+ * Gets the ID string of a given value
+ * @param value ObjectID or Plain String
+ */
+function parseId(value?: string): string | null {
+  if (!value) {
+    return null;
+  }
+
+  if (mongoose.isValidObjectId(value)) {
+    return value;
+  } else {
+    return decrypt<string>(value);
+  }
+}
 
 /**
  * Receives an encrypted id of a refresh token entry and
@@ -106,23 +114,28 @@ export const revokeRefreshToken = async (id: string): Promise<void> => {
  *
  * Else delete it from the database
  *
- * @param encryptedId Encrypted identifier
+ * @param identifier Encrypted identifier
+ *
+ * @returns User in order to create new access token
+ *
+ * @throws Error when refresh is invalid
  */
 export const validateRefreshToken = async (
-  encryptedId: string
-): Promise<boolean> => {
-  const id = decrypt<string>(encryptedId);
+  identifier: string
+): Promise<IUserDocument> => {
+  const id = parseId(identifier);
 
   if (!id) {
-    return false;
+    throw new Error("Invalid token");
   }
 
   const document = await RefreshTokenMongooseModel.findById(id).populate(
-    "owner"
+    "owner",
+    "id +token_version"
   );
 
   if (!document) {
-    return false;
+    throw new Error("Invalid token");
   }
 
   const decryptedToken = decrypt<UnencryptedRefreshToken>(
@@ -133,12 +146,12 @@ export const validateRefreshToken = async (
   // - User refreshed their token version
   // - Token has expired
   if (
-    document.owner.token_version !== decryptedToken.version ||
+    String(document.owner.token_version) !== decryptedToken.version ||
     document.expires_at >= new Date()
   ) {
     // TODO: Consider logging this deletion for audit purposes?
     await document.delete().exec();
-    return false;
+    throw new Error("Invalid token");
   } else {
     // If valid, then extend its duration
     await document
@@ -146,7 +159,7 @@ export const validateRefreshToken = async (
       .exec();
   }
 
-  return true;
+  return await UserMongoose.findById(document.owner.id).exec();
 };
 
 /**
@@ -155,12 +168,18 @@ export const validateRefreshToken = async (
  * @param response Express' response
  * @param user User object
  */
-export const sendRefreshToken = async (
+export const sendRefreshTokenCookie = async (
   response: Response,
   user: IUserDocument
 ): Promise<void> => {
   const id = await createNewRefreshTokenDocument("placeholder", user);
+
   response.cookie(COOKIE_NAME, id, {
     httpOnly: true,
+    secure: process.env.NODE_ENV === "production" || false,
   });
+};
+
+export const getRefreshTokenCookie = (request: Request): string => {
+  return request.cookies(COOKIE_NAME) as string;
 };

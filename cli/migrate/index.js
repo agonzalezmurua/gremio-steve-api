@@ -30,10 +30,10 @@ yargs(hideBin(process.argv))
         type: "string",
       }),
     (args) => {
-      const flattenedArgs = flattenedArgs({
+      const flatArguments = flattenArguments({
         "template-file": "./cli/migrate/template.ts",
       });
-      const command = `migrate ${flattenedArgs} create ${args.name}`;
+      const command = `migrate ${flatArguments} create ${args.name}`;
       execSync(command);
     }
   )

@@ -2,7 +2,7 @@ import axios from "axios";
 import consola from "consola";
 import config from "config";
 import { encode } from "querystring";
-import { Request, Response } from "express";
+import { NextFunction, Request, Response } from "express";
 import format from "string-format";
 import {
   ApiOperationGet,
@@ -12,10 +12,17 @@ import {
 } from "swagger-express-ts";
 
 import prefixes from "_/constants/consola.prefixes";
-import UserMongoose from "../mongo/user";
+import UserMongoose from "_/controllers/mongo/user";
+import { UnauthorizedError } from "_/utils/errors";
+
 import { sendAuthenticationToken } from "_/services/internal/auth/identity";
+import {
+  sendRefreshTokenCookie,
+  validateRefreshToken,
+  getRefreshTokenCookie,
+} from "_/services/internal/auth/refresh";
+
 import { Steve } from "_/types/steve-api";
-import { sendRefreshToken } from "_/services/internal/auth/refresh";
 
 const redirect_uri = format(
   config.get("web.auth_redirect_url"),
@@ -164,7 +171,7 @@ class AuthController {
           "issuing authentication and refresh tokens"
         );
 
-        await sendRefreshToken(res, user).catch((error) =>
+        await sendRefreshTokenCookie(res, user).catch((error) =>
           consola.error(prefixes.oauth, "failed to send refresh token", error)
         );
 
@@ -174,6 +181,30 @@ class AuthController {
         consola.error(prefixes.oauth, "failed to authenticate", error);
         res.status(error.response ? error.response.status : 500);
         res.json(error.response ? error.response.data : null);
+      });
+  }
+
+  @ApiOperationGet({
+    path: "/refresh",
+    responses: {
+      200: {
+        description:
+          "Given a refresh token, as valid refresh_token, emits a new access token",
+        model: "Authentication.Response",
+      },
+    },
+  })
+  public refresh(req: Request, res: Response, next: NextFunction) {
+    const token_id = getRefreshTokenCookie(req);
+
+    validateRefreshToken(token_id)
+      .then((user) => {
+        sendAuthenticationToken(res, user);
+      })
+      .catch((error) => {
+        consola.error(prefixes.oauth, error);
+        res.status(401);
+        next(new UnauthorizedError());
       });
   }
 }
