@@ -194,18 +194,18 @@ class AuthController {
       },
     },
   })
-  public refresh(req: Request, res: Response, next: NextFunction) {
+  public refreshToken(req: Request, res: Response, next: NextFunction) {
     const token_id = getRefreshTokenCookie(req);
+    if (!token_id) {
+      res.status(403).send();
+      return;
+    }
 
     validateRefreshToken(token_id)
       .then((user) => {
         sendAuthenticationToken(res, user);
       })
-      .catch((error) => {
-        consola.error(prefixes.oauth, error);
-        res.status(401);
-        next(new UnauthorizedError());
-      });
+      .catch((error) => next(error));
   }
 }
 

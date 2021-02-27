@@ -5,5 +5,6 @@ const router = express.Router();
 
 router.get("/osu", AuthController.requestAuthorization);
 router.post("/osu/callback", AuthController.authenticateUser);
+router.get("/refresh", AuthController.refreshToken);
 
 export default router;

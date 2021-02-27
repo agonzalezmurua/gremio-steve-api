@@ -9,7 +9,7 @@ import UserMongoose from "_/controllers/mongo/user";
 import { IUserDocument } from "_/schemas/user";
 
 const SECRET = process.env.APP_AUTH_REFRESH_SECRET;
-const EXPIRATION = 60 * 60 * 24 * 30; // 30 days
+const EXPIRATION = 1000 * 60 * 60 * 24 * 30; // 30 days
 const COOKIE_NAME = "steve-session";
 
 type UnencryptedRefreshToken = {
@@ -147,10 +147,10 @@ export const validateRefreshToken = async (
   // - Token has expired
   if (
     String(document.owner.token_version) !== decryptedToken.version ||
-    document.expires_at >= new Date()
+    document.expires_at < new Date()
   ) {
     // TODO: Consider logging this deletion for audit purposes?
-    await document.delete().exec();
+    // await document.delete();
     throw new Error("Invalid token");
   } else {
     // If valid, then extend its duration
@@ -181,5 +181,5 @@ export const sendRefreshTokenCookie = async (
 };
 
 export const getRefreshTokenCookie = (request: Request): string => {
-  return request.cookies(COOKIE_NAME) as string;
+  return request.cookies[COOKIE_NAME] as string;
 };
