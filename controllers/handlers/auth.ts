@@ -13,13 +13,17 @@ import {
 
 import prefixes from "_/constants/consola.prefixes";
 import UserMongoose from "_/controllers/mongo/user";
-import { UnauthorizedError } from "_/utils/errors";
 
-import { sendAuthenticationToken } from "_/services/internal/auth/identity";
 import {
-  sendRefreshTokenCookie,
-  validateRefreshToken,
-  getRefreshTokenCookie,
+  ACCESS_TOKEN_EXPIRATION,
+  createAuthenticationToken,
+} from "_/services/internal/auth/identity";
+import {
+  removeRefreshTokenCookie,
+  setNewRefreshTokenCookie,
+  readRefreshTokenCookie,
+  extendLifeOfRefreshToken,
+  createRefreshToken,
 } from "_/services/internal/auth/refresh";
 
 import { Steve } from "_/types/steve-api";
@@ -43,7 +47,7 @@ class AuthController {
       },
     },
   })
-  public requestAuthorization(
+  public redirectToOsuOauth(
     req: Request<unknown, unknown, unknown, { state?: string }>,
     res: Response
   ) {
@@ -171,11 +175,18 @@ class AuthController {
           "issuing authentication and refresh tokens"
         );
 
-        await sendRefreshTokenCookie(res, user).catch((error) =>
+        await setNewRefreshTokenCookie(res, user).catch((error) =>
           consola.error(prefixes.oauth, "failed to send refresh token", error)
         );
 
-        sendAuthenticationToken(res, user);
+        res.status(200);
+        res.json({
+          token_type: "Bearer",
+          expires_in: ACCESS_TOKEN_EXPIRATION,
+          access_token: createAuthenticationToken(user),
+        });
+
+        res.end();
       })
       .catch((error) => {
         consola.error(prefixes.oauth, "failed to authenticate", error);
@@ -188,24 +199,65 @@ class AuthController {
     path: "/refresh",
     responses: {
       200: {
-        description:
-          "Given a refresh token, as valid refresh_token, emits a new access token",
+        description: "Bearer token response",
         model: "Authentication.Response",
+      },
+      403: {
+        description: "User is not allowed to refresh",
       },
     },
   })
-  public refreshToken(req: Request, res: Response, next: NextFunction) {
-    const token_id = getRefreshTokenCookie(req);
-    if (!token_id) {
+  public async refreshToken(
+    req: Request,
+    res: Response<Steve.AuthenticationResponse>,
+    next: NextFunction
+  ) {
+    const refresh_token = readRefreshTokenCookie(req);
+
+    if (!refresh_token) {
       res.status(403).send();
       return;
     }
+    try {
+      const document = await extendLifeOfRefreshToken(refresh_token);
 
-    validateRefreshToken(token_id)
-      .then((user) => {
-        sendAuthenticationToken(res, user);
-      })
-      .catch((error) => next(error));
+      const user = await UserMongoose.findById(document.owner.id);
+
+      res.json({
+        access_token: createAuthenticationToken(user),
+        expires_in: ACCESS_TOKEN_EXPIRATION,
+        token_type: "Bearer",
+      });
+    } catch (error) {
+      removeRefreshTokenCookie(res);
+      next(error);
+    }
+  }
+
+  @ApiOperationGet({
+    path: "/app",
+    responses: {
+      200: {
+        description: "Bearer token response",
+        model: "Authentication.Response",
+      },
+      401: {
+        description: "Used is not authenticated",
+      },
+    },
+  })
+  public async issueAppAuthentication(
+    req: Request,
+    res: Response<Steve.AuthenticationResponse>
+  ) {
+    const user = await UserMongoose.findById(req.user.id);
+
+    res.json({
+      token_type: "Bearer",
+      expires_in: ACCESS_TOKEN_EXPIRATION,
+      access_token: createAuthenticationToken(user),
+      refresh_token: await createRefreshToken(user, "app"),
+    });
   }
 }
 

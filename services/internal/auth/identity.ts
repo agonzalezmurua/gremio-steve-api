@@ -5,17 +5,17 @@ import { Steve } from "_/types/steve-api";
 
 const SECRET = process.env.APP_AUTH_SECRET;
 const ALGORITHM = "HS256";
-const EXPIRATION = 60 * 60 * 1; // 1 hour
+export const ACCESS_TOKEN_EXPIRATION = 60 * 60 * 1; // 1 hour
 
 /** Alias to string, used to help understand references to this particular token across the APP */
-export type IdentityToken = string;
+export type AcessToken = string;
 
 /**
  * Signs a given object and creates a Json Web Token
  */
-function sign(payload: Steve.LoggedUserTokenPayload): IdentityToken {
+function sign(payload: Steve.LoggedUserTokenPayload): AcessToken {
   return jwt.sign(payload, SECRET, {
-    expiresIn: EXPIRATION,
+    expiresIn: ACCESS_TOKEN_EXPIRATION,
     algorithm: ALGORITHM,
   });
 }
@@ -23,7 +23,7 @@ function sign(payload: Steve.LoggedUserTokenPayload): IdentityToken {
  * Attemps to verify JWT signature
  */
 export function verifyJwtSignature(
-  token: IdentityToken
+  token: AcessToken
 ): Steve.LoggedUserTokenPayload {
   return jwt.verify(token, SECRET) as Steve.LoggedUserTokenPayload;
 }
@@ -35,20 +35,11 @@ export function verifyJwtSignature(
  *
  * @param payload Authentication payload
  */
-export const sendAuthenticationToken = (
-  response: Response,
-  user: IUserDocument
-): void => {
-  response.status(200);
-  response.json({
-    token_type: "Bearer",
-    expires_in: EXPIRATION,
-    access_token: sign({
-      id: user.id,
-      osu_id: user.osu_id,
-      avatar_url: user.avatar_url,
-      name: user.name,
-    }),
+export const createAuthenticationToken = (user: IUserDocument): AcessToken => {
+  return sign({
+    id: user.id,
+    osu_id: user.osu_id,
+    avatar_url: user.avatar_url,
+    name: user.name,
   });
-  response.end();
 };

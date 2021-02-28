@@ -3,8 +3,8 @@ import { Utils } from "_/types/mongoose_aux";
 import { IUser, IUserDocument } from "./user";
 
 export interface IRefreshToken {
-  /** Token associated with this particular entry, encrypted on a JSON format */
-  encrypted_value: string;
+  /** Version used when created / refreshed token */
+  version: string;
   /** Expiration date */
   expires_at: Date;
   /** Whose token belongs to */
@@ -32,8 +32,8 @@ const RefreshTokenSchemaFields: Utils.SchemaFields<IRefreshToken> = {
     type: String,
     required: true,
   },
-  encrypted_value: {
-    type: String,
+  version: {
+    type: mongoose.Schema.Types.ObjectId,
     required: true,
   },
 };

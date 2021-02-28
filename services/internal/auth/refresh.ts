@@ -7,14 +7,14 @@ import RefreshTokenMongooseModel from "_/controllers/mongo/refresh_token";
 import UserMongoose from "_/controllers/mongo/user";
 
 import { IUserDocument } from "_/schemas/user";
+import { IRefreshTokenDocument } from "_/schemas/refresh_token";
 
 const SECRET = process.env.APP_AUTH_REFRESH_SECRET;
-const EXPIRATION = 1000 * 60 * 60 * 24 * 30; // 30 days
+const EXPIRATION = 1000 * 60 * 60 * 24 * 7; // 7 days
 const COOKIE_NAME = "steve-session";
 
-type UnencryptedRefreshToken = {
-  version: string;
-};
+/** Alias of encrypted id of token */
+type RefreshToken = string;
 
 /**
  * Returns a encrypted string, encoded using UTF8
@@ -45,22 +45,18 @@ const decrypt = <T>(cipher: string): T | null => {
  *
  * @returns encrypted refresh token ID
  */
-export const createNewRefreshTokenDocument = async (
-  friendlyName: string,
-  owner: IUserDocument
-): Promise<string> => {
+export const createRefreshToken = async (
+  owner: IUserDocument,
+  friendlyName = "default"
+): Promise<RefreshToken> => {
   const { token_version } = await UserMongoose.findById(owner.id).select(
     "+token_version"
   );
-  const payload: UnencryptedRefreshToken = {
-    version: String(token_version),
-  };
-
   const document = {
     expires_at: new Date(Date.now() + EXPIRATION),
     owner: owner.id,
     friendly_name: friendlyName,
-    encrypted_value: encrypt(payload),
+    version: token_version,
   };
 
   const refreshToken = await new RefreshTokenMongooseModel(document).save({
@@ -83,18 +79,24 @@ export const revokeAllRefreshTokens = async (userId: string): Promise<void> => {
 
 /**
  * Revokes a refresh token session
- * @param id It can be either a encrypted id or an actual id
+ * @param token It can be either a encrypted id or an actual id
  */
-export const revokeRefreshToken = async (id: string): Promise<void> => {
-  await RefreshTokenMongooseModel.findByIdAndDelete(parseId(id)).exec();
+export const revokeRefreshToken = async (
+  token: RefreshToken
+): Promise<void> => {
+  await RefreshTokenMongooseModel.findByIdAndDelete(
+    parseTokenIntoId(token)
+  ).exec();
   return;
 };
 
 /**
  * Gets the ID string of a given value
  * @param value ObjectID or Plain String
+ *
+ * @returns Decripted value (if applicable), as token's id
  */
-function parseId(value?: string): string | null {
+function parseTokenIntoId(value?: RefreshToken | string): RefreshToken | null {
   if (!value) {
     return null;
   }
@@ -107,79 +109,107 @@ function parseId(value?: string): string | null {
 }
 
 /**
- * Receives an encrypted id of a refresh token entry and
- * validates its status.
+ * Validates the refresh token, if exists, and also if it has not expired
  *
- * If valid then extends it's expiration date
+ * @param token Encrypted identifier
  *
- * Else delete it from the database
- *
- * @param identifier Encrypted identifier
- *
- * @returns User in order to create new access token
+ * @returns Te token itself
  *
  * @throws Error when refresh is invalid
  */
-export const validateRefreshToken = async (
-  identifier: string
-): Promise<IUserDocument> => {
-  const id = parseId(identifier);
+const validateRefreshToken = async (
+  token: RefreshToken
+): Promise<RefreshToken> => {
+  const id = parseTokenIntoId(token);
 
-  if (!id) {
+  if (typeof id !== "string") {
     throw new Error("Invalid token");
   }
 
-  const document = await RefreshTokenMongooseModel.findById(id).populate(
-    "owner",
-    "id +token_version"
-  );
-
-  if (!document) {
-    throw new Error("Invalid token");
-  }
-
-  const decryptedToken = decrypt<UnencryptedRefreshToken>(
-    document.encrypted_value
-  );
-
-  // The token is not valid if:
-  // - User refreshed their token version
-  // - Token has expired
   if (
-    String(document.owner.token_version) !== decryptedToken.version ||
-    document.expires_at < new Date()
+    (await RefreshTokenMongooseModel.exists({
+      id: id,
+      expires_at: { $lt: new Date() },
+    })) === false
   ) {
-    // TODO: Consider logging this deletion for audit purposes?
-    // await document.delete();
     throw new Error("Invalid token");
-  } else {
-    // If valid, then extend its duration
-    await document
-      .update({ expires_at: new Date(Date.now() + EXPIRATION) })
-      .exec();
   }
 
-  return await UserMongoose.findById(document.owner.id).exec();
+  return token;
 };
 
 /**
- * Sets the refresh token id on a http cookie
+ * If valid, extends (if applicable) the life of the refresh_token:
+ * - If user has not refreshed their token version value
+ * - If the expiration date on the document has not been met
+ *
+ * @throws Error when the refresh token
+ *
+ * @param token Either encrypted or decrypted token
+ */
+export const extendLifeOfRefreshToken = async (
+  token: RefreshToken
+): Promise<IRefreshTokenDocument> => {
+  await validateRefreshToken(token);
+
+  const document = await RefreshTokenMongooseModel.findById(
+    parseTokenIntoId(token)
+  ).populate("owner", "id +token_version"); // Get the id and version of the associated user
+
+  // INvalid if:
+  // - User refreshed their token version ()
+  // - Token has expired
+  if (
+    document.owner.token_version.equals(document.version) === false ||
+    document.expires_at < new Date()
+  ) {
+    // TODO: Consider logging this deletion for audit purposes?
+    await document.delete();
+    throw new Error("Invalid token");
+  }
+  // Extend the expiration duration by the requested amount
+  document.expires_at = new Date(Date.now() + EXPIRATION);
+  await document.save();
+
+  return document;
+};
+
+/**
+ * Creats and sets a new refresh token on a http cookie
  *
  * @param response Express' response
  * @param user User object
  */
-export const sendRefreshTokenCookie = async (
+export const setNewRefreshTokenCookie = async (
   response: Response,
   user: IUserDocument
 ): Promise<void> => {
-  const id = await createNewRefreshTokenDocument("placeholder", user);
+  const refreshToken = await createRefreshToken(user);
 
-  response.cookie(COOKIE_NAME, id, {
+  response.cookie(COOKIE_NAME, refreshToken, {
     httpOnly: true,
     secure: process.env.NODE_ENV === "production" || false,
   });
 };
 
-export const getRefreshTokenCookie = (request: Request): string => {
-  return request.cookies[COOKIE_NAME] as string;
+/**
+ * Reads the refresh token id on a http cookie
+ *
+ * @param request Express' request
+ */
+export const readRefreshTokenCookie = (
+  request: Request<unknown, unknown, unknown>
+): RefreshToken => {
+  return request.cookies[COOKIE_NAME];
+};
+
+/**
+ * Reads the refresh token id on a http cookie
+ *
+ * @param response Express' request
+ */
+export const removeRefreshTokenCookie = (
+  response: Response<unknown, unknown>
+): void => {
+  response.clearCookie(COOKIE_NAME);
 };
