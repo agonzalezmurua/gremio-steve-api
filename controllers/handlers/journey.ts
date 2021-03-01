@@ -38,21 +38,17 @@ class JourneyController {
       },
     },
   })
-  public searchJourneys(req: Request, res: Response, next: NextFunction) {
+  public async searchJourneys(req: Request, res: Response) {
     const {
       query: { search = "" },
     } = req;
 
-    JourneyMongoose.fuzzySearch(search as string)
+    const journeys = await JourneyMongoose.fuzzySearch(search as string)
       .select("-confidenceScore")
       .populate({ path: "organizer", select: "-journeys -queue" })
-      .exec()
-      .then((journeys) =>
-        res.json(journeys.map((journey) => new Journey(journey)))
-      )
-      .catch((error) => {
-        next(error);
-      });
+      .exec();
+
+    res.json(journeys.map((journey) => new Journey(journey)));
   }
 
   @ApiOperationGet({
@@ -78,12 +74,11 @@ class JourneyController {
       },
     },
   })
-  public getMyJourneys(
+  public async getMyJourneys(
     req: Request<unknown, unknown, unknown, { status?: JourneyStatus }>,
-    res: Response,
-    next: NextFunction
+    res: Response
   ) {
-    JourneyMongoose.find(
+    const journeys = await JourneyMongoose.find(
       req.query.status
         ? {
             organizer: req.user.id,
@@ -94,11 +89,9 @@ class JourneyController {
           }
     )
       .populate("organizer")
-      .exec()
-      .then((journeys) =>
-        res.json(journeys.map((journey) => new Journey(journey)))
-      )
-      .catch((e) => next(e));
+      .exec();
+
+    res.json(journeys.map((journey) => new Journey(journey)));
   }
 
   @ApiOperationGet({
@@ -115,23 +108,20 @@ class JourneyController {
       },
     },
   })
-  public getMyQueue(req: Request, res: Response, next: NextFunction) {
-    UserMongoose.findById(req.user.id)
+  public async getMyQueue(req: Request, res: Response) {
+    const { queue } = await UserMongoose.findById(req.user.id)
       .select("queue")
-      .exec()
-      .then(({ queue }) =>
-        JourneyMongoose.find({
-          _id: {
-            $in: queue,
-          },
-        })
-          .populate("organizer")
-          .exec()
-      )
-      .then((journeys) => {
-        res.json(journeys.map((journey) => new Journey(journey)));
-      })
-      .catch((e) => next(e));
+      .exec();
+
+    const journeys = await JourneyMongoose.find({
+      _id: {
+        $in: queue,
+      },
+    })
+      .populate("organizer")
+      .exec();
+
+    res.json(journeys.map((journey) => new Journey(journey)));
   }
 
   @ApiOperationGet({
@@ -150,16 +140,12 @@ class JourneyController {
       404: {},
     },
   })
-  public getOneJourneyById(
-    req: Request<{ id: string }>,
-    res: Response,
-    next: NextFunction
-  ) {
-    JourneyMongoose.findById(req.params.id)
+  public async getOneJourneyById(req: Request<{ id: string }>, res: Response) {
+    const journey = await JourneyMongoose.findById(req.params.id)
       .populate("organizer")
-      .exec()
-      .then((journey) => res.json(journey))
-      .catch((error) => next(error));
+      .exec();
+
+    res.json(journey);
   }
 
   @ApiOperationPost({
@@ -180,10 +166,9 @@ class JourneyController {
       ensureAuthenticated: [],
     },
   })
-  public createOneJourney(
-    { body: { journey }, user }: Request<null, null, { journey: IJourney }>,
-    res: Response,
-    next: NextFunction
+  public async createOneJourney(
+    { body, user }: Request<null, null, { journey: IJourney }>,
+    res: Response
   ) {
     const {
       title,
@@ -195,8 +180,9 @@ class JourneyController {
       is_private,
       beatmaps = [],
       osu_link,
-    } = journey;
-    new JourneyMongoose({
+    } = body.journey;
+
+    const journey = await new JourneyMongoose({
       organizer: user.id,
       artist,
       banner_url,
@@ -212,10 +198,9 @@ class JourneyController {
       is_private,
       osu_link,
       description,
-    })
-      .save({ validateBeforeSave: true })
-      .then((journey) => res.json(new Journey(journey)))
-      .catch((error) => next(error));
+    }).save({ validateBeforeSave: true });
+
+    res.json(new Journey(journey));
   }
 
   @ApiOperationDelete({
@@ -243,28 +228,26 @@ class JourneyController {
       ensureAuthenticated: [],
     },
   })
-  public deleteOneJourneyById(
+  public async deleteOneJourneyById(
     req: Request<{ id: string }>,
-    res: Response,
-    next: NextFunction
+    res: Response
   ) {
-    JourneyMongoose.findById(req.params.id)
+    const journey = await JourneyMongoose.findById(req.params.id)
       .populate("organizer")
-      .exec()
-      .then((journey) => {
-        if (!journey) {
-          return res.status(404);
-        }
-        if (journey.organizer.id === req.user.id) {
-          res.status(204);
-          return journey.delete();
-        }
-        throw new UnauthorizedError();
-      })
-      .then(() => {
-        res.json();
-      })
-      .catch((error) => next(error));
+      .exec();
+
+    if (!journey) {
+      return res.status(404);
+    }
+
+    if (journey.organizer.id !== req.user.id) {
+      throw new UnauthorizedError();
+    }
+
+    await journey.delete();
+
+    res.status(204);
+    res.send();
   }
 }
 

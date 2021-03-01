@@ -32,16 +32,16 @@ class UserController {
       },
     },
   })
-  public searchUsers(req: Request, res: Response) {
+  public async searchUsers(req: Request, res: Response) {
     const {
       query: { search = "" },
     } = req;
 
-    UserMongoose.fuzzySearch(search as string)
+    const users = await UserMongoose.fuzzySearch(search as string)
       .select("-confidenceScore")
-      .then((users) => {
-        res.json(users.map((schema) => new UserModel(schema)));
-      });
+      .exec();
+
+    res.json(users.map((user) => new UserModel(user)));
   }
 
   @ApiOperationGet({
@@ -61,14 +61,15 @@ class UserController {
       },
     },
   })
-  public getOneUserById(req: Request<{ id: string }>, res: Response) {
-    UserMongoose.findById(req.params.id)
+  public async getOneUserById(req: Request<{ id: string }>, res: Response) {
+    const user = await UserMongoose.findById(req.params.id)
       .populate([
         { path: "journeys", select: "-organizer" },
         { path: "queues", select: "-organizer" },
       ])
-      .exec()
-      .then((user) => res.json(new UserModel(user)));
+      .exec();
+
+    res.json(new UserModel(user));
   }
 
   @ApiOperationGet({
@@ -81,11 +82,12 @@ class UserController {
       },
     },
   })
-  public getMyUser(req: Request, res: Response) {
-    UserMongoose.findById(req.user.id)
+  public async getMyUser(req: Request, res: Response) {
+    const user = await UserMongoose.findById(req.user.id)
       .populate("journeys")
-      .exec()
-      .then((user) => res.json(new UserModel(user)));
+      .exec();
+
+    res.json(new UserModel(user));
   }
 }
 
