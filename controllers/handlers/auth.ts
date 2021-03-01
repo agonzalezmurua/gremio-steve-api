@@ -41,6 +41,13 @@ class AuthController {
   @ApiOperationGet({
     path: "/osu",
     description: "Redirects to osu oauth flow",
+    parameters: {
+      query: {
+        state: {
+          type: SwaggerDefinitionConstant.STRING,
+        },
+      },
+    },
     responses: {
       301: {
         description: "Redirects to oauth service",
@@ -97,7 +104,7 @@ class AuthController {
       },
     },
   })
-  public authenticateUser(
+  public async authenticateUser(
     req: Request<unknown, unknown, { authentication: { code: string } }>,
     res: Response<Steve.AuthenticationResponse>
   ) {
@@ -107,12 +114,13 @@ class AuthController {
     });
 
     consola.debug(prefixes.oauth_osu, "sending oauth code to api");
-
-    // Request to external osu service to attempt to authenticate and retrieve
-    // - osu id
-    // - user email
-    client
-      .post(
+    try {
+      // Request to external osu service to attempt to authenticate and retrieve
+      // - osu id
+      // - user email
+      const {
+        data: { token_type, access_token },
+      } = await client.post(
         "/oauth/token",
         // Auth request payload
         encode({
@@ -122,77 +130,68 @@ class AuthController {
           grant_type: "authorization_code", //	This must always be "authorization_code"
           redirect_uri: redirect_uri, //	The configured URL where users will be sent after authorization.
         })
-      )
-      .then(async ({ data: { token_type, access_token } }) => {
-        consola.debug(
-          prefixes.oauth_osu,
-          "adding interceptor for further requests"
-        );
-        // Add interceptor for further requests that uses the provided access token
-        client.interceptors.request.use((config) => {
-          config.headers = {
-            common: { Authorization: `${token_type} ${access_token}` },
-          };
-          return config;
-        });
-
-        consola.debug(prefixes.oauth_osu, "obtaining user information");
-
-        // osu's user information
-        const { data: me } = await client.get(
-          `${config.get("osu.api.path")}/me`
-        );
-
-        consola.debug(prefixes.oauth_osu, "revoking osu token");
-
-        // Since we are only using the token to obtain the user's info\
-        // We revoke the token to prevent further accidental actions
-        await client.delete(
-          `${config.get("osu.api.path")}/oauth/tokens/current`
-        );
-
-        consola.debug(prefixes.oauth_osu, "retrieving user from database");
-
-        let user = await UserMongoose.findOne({ osu_id: me.id }).exec();
-
-        // Create user document if it doesn't exist
-        if (!user) {
-          consola.debug(prefixes.oauth_osu, "user does not exist, creating");
-          user = new UserMongoose();
-        }
-
-        // Update the user
-        user = Object.assign(user, {
-          osu_id: me.id,
-          name: me.username,
-          avatar_url: me.avatar_url,
-          banner_url: me.custom_url || me.cover.url,
-        });
-        await user.save();
-
-        consola.debug(
-          prefixes.oauth_osu,
-          "issuing authentication and refresh tokens"
-        );
-
-        await setNewRefreshTokenCookie(res, user).catch((error) =>
-          consola.error(prefixes.oauth, "failed to send refresh token", error)
-        );
-
-        res.status(200);
-        res.json({
-          token_type: "Bearer",
-          expires_in: ACCESS_TOKEN_EXPIRATION,
-          access_token: createAuthenticationToken(user),
-        });
-
-        res.end();
-      })
-      .catch((error) => {
-        consola.error(prefixes.oauth, "failed to authenticate", error);
-        res.status(error.response ? error.response.status : 500);
-        res.json(error.response ? error.response.data : null);
+      );
+      consola.debug(
+        prefixes.oauth_osu,
+        "adding interceptor for further requests"
+      );
+      // Add interceptor for further requests that uses the provided access token
+      client.interceptors.request.use((config) => {
+        config.headers = {
+          common: { Authorization: `${token_type} ${access_token}` },
+        };
+        return config;
       });
+
+      consola.debug(prefixes.oauth_osu, "obtaining user information");
+
+      // osu's user information
+      const { data: me } = await client.get(`${config.get("osu.api.path")}/me`);
+
+      consola.debug(prefixes.oauth_osu, "revoking osu token");
+
+      // Since we are only using the token to obtain the user's info\
+      // We revoke the token to prevent further accidental actions
+      await client.delete(`${config.get("osu.api.path")}/oauth/tokens/current`);
+
+      consola.debug(prefixes.oauth_osu, "retrieving user from database");
+
+      let user = await UserMongoose.findOne({ osu_id: me.id }).exec();
+
+      // Create user document if it doesn't exist
+      if (!user) {
+        consola.debug(prefixes.oauth_osu, "user does not exist, creating");
+        user = new UserMongoose();
+      }
+
+      // Update the user
+      user = Object.assign(user, {
+        osu_id: me.id,
+        name: me.username,
+        avatar_url: me.avatar_url,
+        banner_url: me.custom_url || me.cover.url,
+      });
+      await user.save();
+
+      consola.debug(
+        prefixes.oauth_osu,
+        "issuing authentication and refresh tokens"
+      );
+
+      await setNewRefreshTokenCookie(res, user).catch((error) => {
+        consola.error(prefixes.oauth, "failed to send refresh token", error);
+      });
+
+      res.json({
+        token_type: "Bearer",
+        expires_in: ACCESS_TOKEN_EXPIRATION,
+        access_token: createAuthenticationToken(user),
+      });
+    } catch (error) {
+      consola.error(prefixes.oauth, "failed to authenticate", error);
+      res.status(error.response ? error.response.status : 500);
+      res.json(error.response ? error.response.data : null);
+    }
   }
 
   @ApiOperationGet({
@@ -212,16 +211,16 @@ class AuthController {
     res: Response<Steve.AuthenticationResponse>,
     next: NextFunction
   ) {
-    const refresh_token = readRefreshTokenCookie(req);
+    const refreshToken = readRefreshTokenCookie(req);
 
-    if (!refresh_token) {
+    if (!refreshToken) {
       res.status(403).send();
       return;
     }
     try {
-      const document = await extendLifeOfRefreshToken(refresh_token);
+      await extendLifeOfRefreshToken(refreshToken);
 
-      const user = await UserMongoose.findById(document.owner.id);
+      const user = await UserMongoose.findById(req.user.id);
 
       res.json({
         access_token: createAuthenticationToken(user),
@@ -232,32 +231,6 @@ class AuthController {
       removeRefreshTokenCookie(res);
       next(error);
     }
-  }
-
-  @ApiOperationGet({
-    path: "/app",
-    responses: {
-      200: {
-        description: "Bearer token response",
-        model: "Authentication.Response",
-      },
-      401: {
-        description: "Used is not authenticated",
-      },
-    },
-  })
-  public async issueAppAuthentication(
-    req: Request,
-    res: Response<Steve.AuthenticationResponse>
-  ) {
-    const user = await UserMongoose.findById(req.user.id);
-
-    res.json({
-      token_type: "Bearer",
-      expires_in: ACCESS_TOKEN_EXPIRATION,
-      access_token: createAuthenticationToken(user),
-      refresh_token: await createRefreshToken(user, "app"),
-    });
   }
 }
 
