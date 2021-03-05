@@ -8,6 +8,7 @@ const prefixes = {
   app: colors.cyan("[APP]"),
   database: colors.green(`[DBM]`),
   oauth: colors.cyan("[OAUTH]"),
+  hosting: colors.blue("[HOST]"),
   get oauth_osu(): string {
     return `${this.oauth}${this.osu}`;
   },

@@ -11,6 +11,7 @@ import { configure as configureDatabase } from "./services/database.configure";
 import { configure as configureOauth } from "./services/auth.configure";
 import { configure as configureRoutes } from "./services/routes.configure";
 import { configure as configureSwagger } from "./services/swagger.configure";
+import { configure as configureCloudinary } from "./services/cloudinary.configure";
 
 import trafficLogger from "./middlewares/trafficLogger";
 import consola from "consola";
@@ -37,6 +38,7 @@ export default async function setup(app: Application): Promise<void> {
   );
   app.use(cookieParser()); // Add cookies suport
   app.use(bodyParser.json()); // Add json on body support
+  app.use(bodyParser.raw()); // Add raw body support
   app.use(bodyParser.urlencoded({ extended: true })); // Add support to read x-www-form-urlencoded form data
   app.use(trafficLogger);
 
@@ -46,5 +48,6 @@ export default async function setup(app: Application): Promise<void> {
     configureRoutes(app).catch(handleError("routes")),
     configureOsuClient().catch(handleError("osu client")),
     configureDatabase().catch(handleError("database")),
+    configureCloudinary().catch(handleError("hosting")),
   ]);
 }

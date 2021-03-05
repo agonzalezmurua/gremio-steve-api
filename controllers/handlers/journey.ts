@@ -1,4 +1,4 @@
-import { NextFunction, Request, Response } from "express";
+import { Request, Response } from "express";
 import {
   ApiOperationDelete,
   ApiOperationGet,
@@ -13,6 +13,8 @@ import authenticationResponses from "_/constants/swagger.authenticationResponses
 import { UnauthorizedError } from "_/utils/errors";
 import UserMongoose from "_/controllers/mongo/user";
 import JourneyMongoose from "_/controllers/mongo/journey";
+import cloudinary from "_/services/cloudinary.configure";
+import { json } from "body-parser";
 
 @ApiPath({
   path: "/journeys",
@@ -248,6 +250,37 @@ class JourneyController {
 
     res.status(204);
     res.send();
+  }
+
+  @ApiOperationPost({
+    parameters: {
+      query: {
+        name: {
+          type: SwaggerDefinitionConstant.STRING,
+        },
+      },
+    },
+    responses: {
+      200: {
+        description: "Succesful upload",
+      },
+      403: {
+        description: "",
+      },
+    },
+    security: {
+      ensureAuthenticated: [],
+    },
+  })
+  public async uploadThumbnails(req: Request, res: Response) {
+    const image = await cloudinary.uploader.upload(
+      req.rawBody.toString("base64"),
+      { async: true }
+    );
+
+    res.json({
+      url: image.url,
+    });
   }
 }
 
