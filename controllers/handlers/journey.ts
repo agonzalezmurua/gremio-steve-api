@@ -272,7 +272,7 @@ class JourneyController {
       ensureAuthenticated: [],
     },
   })
-  public async uploadThumbnails(req: Request, res: Response) {
+  public async uploadThumbnail(req: Request, res: Response) {
     const image = await cloudinary.uploader.upload(
       req.rawBody.toString("base64"),
       { async: true }
