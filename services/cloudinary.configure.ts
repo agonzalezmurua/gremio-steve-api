@@ -16,5 +16,3 @@ export async function configure(): Promise<void> {
     throw error;
   }
 }
-
-export default cloudinary;

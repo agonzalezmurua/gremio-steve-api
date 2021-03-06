@@ -6,11 +6,6 @@ const router = express.Router();
 
 router.get("/", JourneyController.searchJourneys);
 router.post("/", ensureAuthenticated, JourneyController.createOneJourney);
-router.post(
-  "/thumnail",
-  ensureAuthenticated,
-  JourneyController.uploadThumbnail
-);
 router.get("/mine", ensureAuthenticated, JourneyController.getMyJourneys);
 router.get("/queue", ensureAuthenticated, JourneyController.getMyQueue);
 

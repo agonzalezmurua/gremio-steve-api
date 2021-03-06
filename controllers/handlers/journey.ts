@@ -13,8 +13,19 @@ import authenticationResponses from "_/constants/swagger.authenticationResponses
 import { UnauthorizedError } from "_/utils/errors";
 import UserMongoose from "_/controllers/mongo/user";
 import JourneyMongoose from "_/controllers/mongo/journey";
-import cloudinary from "_/services/cloudinary.configure";
-import { json } from "body-parser";
+import cloudinary from "_/services/internal/cloudinary";
+import { isBase64, removeDataUrlDeclaration } from "_/utils/base64";
+
+const image_transformations = {
+  banner: {
+    width: 900,
+    height: 250,
+  },
+  thumbnail: {
+    width: 250,
+    height: 250,
+  },
+};
 
 @ApiPath({
   path: "/journeys",
@@ -175,14 +186,39 @@ class JourneyController {
     const {
       title,
       artist,
-      thumbnail_url,
-      banner_url,
+      thumbnail_url: thumbnail,
+      banner_url: banner,
       metadata: { bpm, duration, genre, closure },
       description,
       is_private,
       beatmaps = [],
       osu_link,
     } = body.journey;
+
+    let thumbnail_url: string;
+    let banner_url: string;
+
+    if (isBase64(thumbnail)) {
+      await cloudinary.uploader
+        .upload(removeDataUrlDeclaration(thumbnail), {
+          transformation: image_transformations.thumbnail,
+          async: true,
+        })
+        .then((response) => {
+          thumbnail_url = response.url;
+        });
+    }
+
+    if (isBase64(banner)) {
+      await cloudinary.uploader
+        .upload(removeDataUrlDeclaration(banner), {
+          transformation: image_transformations.banner,
+          async: true,
+        })
+        .then((response) => {
+          banner_url = response.url;
+        });
+    }
 
     const journey = await new JourneyMongoose({
       organizer: user.id,
@@ -201,6 +237,7 @@ class JourneyController {
       osu_link,
       description,
     }).save({ validateBeforeSave: true });
+    await journey.populate("organizer").execPopulate();
 
     res.json(new Journey(journey));
   }
@@ -250,37 +287,6 @@ class JourneyController {
 
     res.status(204);
     res.send();
-  }
-
-  @ApiOperationPost({
-    parameters: {
-      query: {
-        name: {
-          type: SwaggerDefinitionConstant.STRING,
-        },
-      },
-    },
-    responses: {
-      200: {
-        description: "Succesful upload",
-      },
-      403: {
-        description: "",
-      },
-    },
-    security: {
-      ensureAuthenticated: [],
-    },
-  })
-  public async uploadThumbnail(req: Request, res: Response) {
-    const image = await cloudinary.uploader.upload(
-      req.rawBody.toString("base64"),
-      { async: true }
-    );
-
-    res.json({
-      url: image.url,
-    });
   }
 }
 

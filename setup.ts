@@ -37,8 +37,7 @@ export default async function setup(app: Application): Promise<void> {
     })
   );
   app.use(cookieParser()); // Add cookies suport
-  app.use(bodyParser.json()); // Add json on body support
-  app.use(bodyParser.raw()); // Add raw body support
+  app.use(bodyParser.json({ limit: "5mb" })); // Add json on body support
   app.use(bodyParser.urlencoded({ extended: true })); // Add support to read x-www-form-urlencoded form data
   app.use(trafficLogger);
 

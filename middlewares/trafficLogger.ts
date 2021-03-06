@@ -40,7 +40,10 @@ export default function trafficLogger(
     consola.info("", ...args);
 
     if (req.method !== "GET" && req.method !== "DELETE") {
-      consola.debug(colors.grey("\n request body:"), req.body);
+      consola.debug(
+        colors.grey("\n request body:"),
+        JSON.stringify(req.body, null, 2).substring(0, 100)
+      );
     }
   });
   next();
