@@ -125,14 +125,10 @@ const validateRefreshToken = async (
   if (typeof id !== "string") {
     throw new Error("Invalid token");
   }
+  const document = await RefreshTokenMongooseModel.findById(id);
 
-  if (
-    (await RefreshTokenMongooseModel.exists({
-      id: id,
-      expires_at: { $lt: new Date() },
-    })) === false
-  ) {
-    throw new Error("Invalid token");
+  if (document.expires_at <= new Date()) {
+    throw new Error("Expired token");
   }
 
   return token;
@@ -146,6 +142,8 @@ const validateRefreshToken = async (
  * @throws Error when the refresh token
  *
  * @param token Either encrypted or decrypted token
+ *
+ * @returns Onwer Id
  */
 export const extendLifeOfRefreshToken = async (
   token: RefreshToken

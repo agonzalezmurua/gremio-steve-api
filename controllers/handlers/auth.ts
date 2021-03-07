@@ -218,16 +218,19 @@ class AuthController {
       return;
     }
     try {
-      await extendLifeOfRefreshToken(refreshToken);
+      const {
+        owner: { id },
+      } = await extendLifeOfRefreshToken(refreshToken);
 
-      const user = await UserMongoose.findById(req.user.id);
+      const owner = await UserMongoose.findById(id);
 
       res.json({
-        access_token: createAuthenticationToken(user),
+        access_token: createAuthenticationToken(owner),
         expires_in: ACCESS_TOKEN_EXPIRATION,
         token_type: "Bearer",
       });
     } catch (error) {
+      consola.trace(error);
       removeRefreshTokenCookie(res);
       next(error);
     }
