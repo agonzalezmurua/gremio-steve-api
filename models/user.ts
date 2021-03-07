@@ -22,12 +22,13 @@ export default class User implements IUser {
     this.avatar_url = document.avatar_url;
     this.banner_url = document.banner_url;
     this.availability = new UserAvailability(document.availability);
-    this.journeys = document.journeys?.map((journey) => new Journey(journey));
     this.community_role = document.community_role;
     this.role = document.role;
     this.preferences = new UserPreferences(document.preferences);
     this.status = document.status;
     this.description = document.description;
+
+    this.journeys = document.journeys?.map((journey) => new Journey(journey));
     this.queue = document.queue?.map(
       (journey) => new Journey(journey as IJourneyDocument)
     );

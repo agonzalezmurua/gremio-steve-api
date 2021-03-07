@@ -63,7 +63,10 @@ const BeatmapSchemaFields: Utils.SchemaFields<IBeatmap> = {
 
 /** Beatmap schema instance */
 const BeatmapSchema = new mongoose.Schema<IBeatmapDocument>(
-  BeatmapSchemaFields
+  BeatmapSchemaFields,
+  {
+    strict: !!process.env.MIGRATING,
+  }
 );
 
 export default BeatmapSchema;

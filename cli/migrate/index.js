@@ -3,7 +3,8 @@
 
 const yargs = require("yargs/yargs");
 const { hideBin } = require("yargs/helpers");
-const { execSync } = require("child_process");
+const { exec, execSync } = require("child_process");
+const consola = require("consola");
 
 function flattenArguments(dynamic) {
   return Object.entries(
@@ -33,8 +34,8 @@ yargs(hideBin(process.argv))
       const flatArguments = flattenArguments({
         "template-file": "./cli/migrate/template.ts",
       });
-      const command = `migrate ${flatArguments} create ${args.name}`;
-      execSync(command);
+      const command = `npx migrate ${flatArguments} create ${args.name}`;
+      execSync(command, { stdio: "inherit" });
     }
   )
   .command(
@@ -42,13 +43,14 @@ yargs(hideBin(process.argv))
     "Migrate up to a given migration",
     (yargs) =>
       yargs.positional("name", {
+        default: "",
         describe: "title of the migration",
         type: "string",
       }),
-    () => {
+    (yargs) => {
       const flatArguments = flattenArguments();
-      const command = `migrate ${flatArguments} up`;
-      execSync(command);
+      const command = `npx migrate ${flatArguments} up ${yargs.name}`;
+      execSync(command, { stdio: "inherit" });
     }
   )
   .command(
@@ -59,9 +61,9 @@ yargs(hideBin(process.argv))
         describe: "title of the migration",
         type: "string",
       }),
-    () => {
+    (yargs) => {
       const flatArguments = flattenArguments();
-      const command = `migrate ${flatArguments} down`;
-      execSync(command);
+      const command = `npx migrate ${flatArguments} down ${yargs.name}`;
+      execSync(command, { stdio: "inherit" });
     }
   ).argv;

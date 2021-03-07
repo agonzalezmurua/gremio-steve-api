@@ -2,7 +2,7 @@ import axios from "axios";
 import { encode } from "querystring";
 import config = require("config");
 import prefixes from "_/constants/consola.prefixes";
-import { client } from "_/services/osu.configure";
+import { OsuClient } from "_/services/osu.configure";
 import consola from "consola";
 
 const oauth = axios.create({
@@ -46,7 +46,7 @@ export async function fetchToken(): Promise<string> {
 export function setAuthorizationHeaderInterceptor(
   authorization: string
 ): number {
-  return client.interceptors.request.use(function (config) {
+  return OsuClient.interceptors.request.use(function (config) {
     config.headers = {
       common: {
         Authorization: authorization,
@@ -67,7 +67,7 @@ export function setExpiredTokenInterceptor(
   previousRequestInterceptor: number
 ): number {
   let requestInterceptor = previousRequestInterceptor;
-  const responseInterceptor = client.interceptors.response.use(
+  const responseInterceptor = OsuClient.interceptors.response.use(
     (response) => response,
     (error) => {
       if (error.response.status === 401) {
@@ -83,7 +83,7 @@ export function setExpiredTokenInterceptor(
         );
         consola.debug(prefixes.osu, "Discarding original request interceptor");
 
-        client.interceptors.request.eject(requestInterceptor);
+        OsuClient.interceptors.request.eject(requestInterceptor);
 
         consola.debug(prefixes.osu, "Attempting to get new bearer token");
 
@@ -93,7 +93,7 @@ export function setExpiredTokenInterceptor(
           error.config.headers.Authorization = authorization;
 
           consola.debug(prefixes.osu, "retrying request");
-          return client.request(error.config);
+          return OsuClient.request(error.config);
         });
       }
     }

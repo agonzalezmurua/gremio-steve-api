@@ -6,11 +6,11 @@ import config = require("config");
 import prefixes from "_/constants/consola.prefixes";
 import configureToken from "_/services/external/osu/token";
 
-export const client = axios.create({
+export const OsuClient = axios.create({
   baseURL: config.get("osu.base_url"),
 });
 
-client.interceptors.response.use(
+OsuClient.interceptors.response.use(
   (response) => response.data,
   (error) => {
     const method = colors.white.bold(error.request.method);

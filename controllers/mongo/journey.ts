@@ -1,6 +1,7 @@
 import * as mongoose from "mongoose";
 import JourneySchema from "_/schemas/journey";
 
-const JourneyMongooseModel = mongoose.model("Journey", JourneySchema);
+export const name = "Journey";
+const JourneyMongooseModel = mongoose.model(name, JourneySchema);
 
 export default JourneyMongooseModel;

@@ -15,7 +15,7 @@ export default function errorHandler(
     message: err.message || "NO.MESSAGE",
   };
 
-  console.trace(error);
+  console.error(error);
 
   if (err.name === "ValidationError") {
     error.validations = err.errors;

@@ -8,7 +8,7 @@
   "scripts": {
     "postinstall": "husky install",
     "dev": "ts-node-dev --inspect --trace-warnings -r tsconfig-paths/register -- app.ts",
-    "migrate": "node cli/migrate",
+    "migrate": "cross-env MIGRATING=true node cli/migrate",
     "lint": "eslint . --ext .ts --fix --fix-type problem --fix-type suggestion",
     "prod": "node index.js"
   },

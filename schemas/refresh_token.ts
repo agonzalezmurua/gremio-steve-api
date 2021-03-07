@@ -42,5 +42,6 @@ export default new mongoose.Schema<IRefreshTokenDocument>(
   RefreshTokenSchemaFields,
   {
     timestamps: { createdAt: "created_at", updatedAt: "updated_at" },
+    strict: !process.env.MIGRATING,
   }
 );

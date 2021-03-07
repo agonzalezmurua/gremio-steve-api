@@ -1,4 +1,4 @@
-import { Request, Response } from "express";
+import { NextFunction, Request, Response } from "express";
 import {
   ApiOperationDelete,
   ApiOperationGet,
@@ -6,15 +6,16 @@ import {
   ApiPath,
   SwaggerDefinitionConstant,
 } from "swagger-express-ts";
+import consola from "consola";
 
 import Journey from "_/models/journey";
-import { IJourney, JourneyStatus } from "_/schemas/journey";
+import { IJourney, IJourneyDocument, JourneyStatus } from "_/schemas/journey";
 import authenticationResponses from "_/constants/swagger.authenticationResponses";
 import { UnauthorizedError } from "_/utils/errors";
 import UserMongoose from "_/controllers/mongo/user";
 import JourneyMongoose from "_/controllers/mongo/journey";
 import cloudinary from "_/services/internal/cloudinary";
-import { isBase64, removeDataUrlDeclaration } from "_/utils/base64";
+import { isBase64 } from "_/utils/base64";
 
 const image_transformations = {
   banner: {
@@ -181,65 +182,73 @@ class JourneyController {
   })
   public async createOneJourney(
     { body, user }: Request<null, null, { journey: IJourney }>,
-    res: Response
+    res: Response,
+    next: NextFunction
   ) {
-    const {
-      title,
-      artist,
-      thumbnail_url: thumbnail,
-      banner_url: banner,
-      metadata: { bpm, duration, genre, closure },
-      description,
-      is_private,
-      beatmaps = [],
-      osu_link,
-    } = body.journey;
+    try {
+      const {
+        title,
+        artist,
+        covers: { thumbnail: thumbnail, banner: banner },
+        metadata: { bpm, duration, genre, closure },
+        description,
+        is_private,
+        beatmaps = [],
+        osu_link,
+      } = body.journey;
 
-    let thumbnail_url: string;
-    let banner_url: string;
+      let thumbnail_url: string;
+      let banner_url: string;
 
-    if (isBase64(thumbnail)) {
-      await cloudinary.uploader
-        .upload(removeDataUrlDeclaration(thumbnail), {
-          transformation: image_transformations.thumbnail,
-          async: true,
-        })
-        .then((response) => {
-          thumbnail_url = response.url;
+      if (isBase64(thumbnail)) {
+        const response = await cloudinary.uploader.upload(thumbnail, {
+          transformation: {
+            ...image_transformations.thumbnail,
+            crop: "fit",
+          },
         });
-    }
 
-    if (isBase64(banner)) {
-      await cloudinary.uploader
-        .upload(removeDataUrlDeclaration(banner), {
+        thumbnail_url = response.secure_url;
+      }
+
+      if (isBase64(banner)) {
+        const response = await cloudinary.uploader.upload(banner, {
           transformation: image_transformations.banner,
-          async: true,
-        })
-        .then((response) => {
-          banner_url = response.url;
+          crop: "fit",
         });
+        banner_url = response.secure_url;
+      }
+
+      let journey: IJourneyDocument = await JourneyMongoose.create({
+        organizer: user.id,
+        artist,
+        title,
+        covers: {
+          banner: banner_url,
+          thumbnail: thumbnail_url,
+        },
+        beatmaps,
+        metadata: {
+          bpm: bpm,
+          duration: duration,
+          genre: genre,
+          closure: closure,
+        },
+        is_private,
+        osu_link,
+        description,
+      });
+
+      journey = await journey.save({ validateBeforeSave: true });
+      journey = await journey
+        .populate({ path: "organizer", select: "-journeys -queue" })
+        .execPopulate();
+
+      res.json(new Journey(journey));
+    } catch (error) {
+      consola.trace(error);
+      next(error);
     }
-
-    const journey = await new JourneyMongoose({
-      organizer: user.id,
-      artist,
-      banner_url,
-      title,
-      thumbnail_url,
-      beatmaps,
-      metadata: {
-        bpm: bpm,
-        duration: duration,
-        genre: genre,
-        closure: closure,
-      },
-      is_private,
-      osu_link,
-      description,
-    }).save({ validateBeforeSave: true });
-    await journey.populate("organizer").execPopulate();
-
-    res.json(new Journey(journey));
   }
 
   @ApiOperationDelete({

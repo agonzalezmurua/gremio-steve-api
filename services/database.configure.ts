@@ -33,6 +33,13 @@ export async function configure(): Promise<void> {
       useCreateIndex: true,
     });
 
+    if (process.env.MIGRATING) {
+      consola.warn(
+        prefixes.database,
+        "Running mongoose schemas with static set to false!"
+      );
+    }
+
     consola.success(prefixes.database, "Database has connected");
   } catch (error) {
     consola.error(prefixes.database, "Database failed to connect", error);

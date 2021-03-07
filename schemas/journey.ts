@@ -26,14 +26,17 @@ export interface IMetadata {
   closure?: Date;
   duration: number;
 }
+export interface ICovers {
+  thumbnail: string;
+  banner: string;
+}
 
 /** Basic journey interface, with main properties */
 export interface IJourney {
   title: string;
   artist: string;
   organizer: IUser;
-  thumbnail_url: string;
-  banner_url: string;
+  covers: ICovers;
   metadata: IMetadata;
   description?: string;
   status: JourneyStatus;
@@ -59,8 +62,16 @@ const JourneySchemaFields: Utils.SchemaFields<IJourney> = {
     ref: "User",
     required: true,
   },
-  thumbnail_url: String,
-  banner_url: String,
+  covers: {
+    thumbnail: {
+      type: String,
+      required: true,
+    },
+    banner: {
+      type: String,
+      required: true,
+    },
+  },
   metadata: {
     genre: String,
     bpm: [Number],
@@ -98,7 +109,10 @@ const JourneySchemaFields: Utils.SchemaFields<IJourney> = {
 /** Journey schema instance */
 const JourneySchema = new mongoose.Schema<IJourneyDocument>(
   JourneySchemaFields,
-  { timestamps: { createdAt: "created_at", updatedAt: "updated_at" } }
+  {
+    timestamps: { createdAt: "created_at", updatedAt: "updated_at" },
+    strict: !process.env.MIGRATING,
+  }
 );
 
 JourneySchema.post("save", async function () {

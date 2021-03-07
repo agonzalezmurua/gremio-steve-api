@@ -104,6 +104,7 @@ const UserSchemaFields: Utils.SchemaFields<IUser> = {
 /** User schema instance */
 const UserSchema = new mongoose.Schema<IUserDocument>(UserSchemaFields, {
   timestamps: { createdAt: "created_at", updatedAt: "updated_at" },
+  strict: !process.env.MIGRATING,
 });
 
 UserSchema.plugin(mongoose_fuzzy_searching, {
