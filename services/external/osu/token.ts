@@ -9,6 +9,8 @@ const oauth = axios.create({
   baseURL: config.get("osu.base_url"),
 });
 
+let headerInterceptor;
+
 /**
  * Does the Grant Code authentication token retrieval from the osu service
  */
@@ -63,11 +65,8 @@ export function setAuthorizationHeaderInterceptor(
  * @param previousRequestInterceptor Request interceptor's id
  * @returns Interceptor's id
  */
-export function setExpiredTokenInterceptor(
-  previousRequestInterceptor: number
-): number {
-  let requestInterceptor = previousRequestInterceptor;
-  const responseInterceptor = OsuClient.interceptors.response.use(
+export function setExpiredTokenInterceptor(): void {
+  headerInterceptor = OsuClient.interceptors.response.use(
     (response) => response,
     (error) => {
       if (error.response.status === 401) {
@@ -83,13 +82,15 @@ export function setExpiredTokenInterceptor(
         );
         consola.debug(prefixes.osu, "Discarding original request interceptor");
 
-        OsuClient.interceptors.request.eject(requestInterceptor);
+        OsuClient.interceptors.request.eject(headerInterceptor);
 
         consola.debug(prefixes.osu, "Attempting to get new bearer token");
 
         return fetchToken().then((authorization) => {
           // Ovewrite interceptor with new one
-          requestInterceptor = setAuthorizationHeaderInterceptor(authorization);
+          headerInterceptor = setAuthorizationHeaderInterceptor(
+            headerInterceptor
+          );
           error.config.headers.Authorization = authorization;
 
           consola.debug(prefixes.osu, "retrying request");
@@ -99,18 +100,9 @@ export function setExpiredTokenInterceptor(
     }
   );
   consola.debug(prefixes.osu, "Expired token interceptor registered");
-  return responseInterceptor;
 }
 
 export default async function configure(): Promise<void> {
-  consola.debug(prefixes.osu, "Starting internal client token configuration");
-  const authorization = await fetchToken();
-  consola.debug(prefixes.osu, "Bearer token fetched");
-
-  const preRequestInterceptor = setAuthorizationHeaderInterceptor(
-    authorization
-  );
-
   consola.success(prefixes.osu, "Oauth succesfully configured");
-  setExpiredTokenInterceptor(preRequestInterceptor);
+  setExpiredTokenInterceptor();
 }

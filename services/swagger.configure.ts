@@ -50,14 +50,6 @@ export async function configure(app: Application): Promise<void> {
               },
             },
           },
-          "FileUpload.Response": {
-            description: "Result of a image type",
-            properties: {
-              url: {
-                type: swagger.SwaggerDefinitionConstant.STRING,
-              },
-            },
-          },
         },
       },
     })

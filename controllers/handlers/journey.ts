@@ -175,6 +175,7 @@ class JourneyController {
         model: "Journey",
         type: SwaggerDefinitionConstant.OBJECT,
       },
+      ...authenticationResponses,
     },
     security: {
       ensureAuthenticated: [],

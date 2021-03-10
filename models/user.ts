@@ -5,35 +5,60 @@ import {
 } from "swagger-express-ts";
 
 import { IJourneyDocument } from "_/schemas/journey";
-import { IUser, IUserDocument, UserRole, UserStatus } from "_/schemas/user";
+import {
+  IUser,
+  IUserDocument,
+  IUserNotificationPreferences,
+  UserRole,
+  UserStatus,
+} from "_/schemas/user";
 
 import UserPreferences from "_/models/user.preferences";
 import { UserAvailability } from "_/models/user.availability";
 import Journey from "_/models/journey";
 import mongoose = require("mongoose");
+import UserNotificationPreferences from "./user.notification_preferences";
+import { Utils } from "_/types/mongoose_aux";
+import determineReferenceType from "_/utils/determineReferenceType";
 
 @ApiModel()
 export default class User implements IUser {
-  constructor(document: IUserDocument) {
-    this.id = document.id;
-    this.osu_id = document.osu_id;
-    this.name = document.name;
-    this.active = document.active;
-    this.avatar_url = document.avatar_url;
-    this.banner_url = document.banner_url;
-    this.availability = new UserAvailability(document.availability);
-    this.community_role = document.community_role;
-    this.role = document.role;
-    this.preferences = new UserPreferences(document.preferences);
-    this.status = document.status;
-    this.description = document.description;
+  constructor(document: Utils.ReferencedDocument<IUserDocument>) {
+    if (determineReferenceType(document) !== "document") {
+      // Object has not been populated, therefore we skip the model mapping
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
+      return document;
+    }
+    const user = <IUserDocument>document;
 
-    this.journeys = document.journeys?.map((journey) => new Journey(journey));
-    this.queue = document.queue?.map(
+    this.id = user.id;
+    this.osu_id = user.osu_id;
+    this.name = user.name;
+    this.active = user.active;
+    this.avatar_url = user.avatar_url;
+    this.banner_url = user.banner_url;
+    this.availability = new UserAvailability(user.availability);
+    this.community_role = user.community_role;
+    this.role = user.role;
+    this.preferences = new UserPreferences(user.preferences);
+    this.status = user.status;
+    this.description = user.description;
+    // We ignore the union type calcualtion for the callback function
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
+    this.follows = user.follows.map((user) => new User(user));
+    this.notification_preferences = new UserNotificationPreferences(
+      user.notification_preferences
+    );
+
+    this.journeys = user.journeys?.map((journey) => new Journey(journey));
+    this.queue = user.queue?.map(
       (journey) => new Journey(journey as IJourneyDocument)
     );
   }
 
+  //#region Mapped api fields
   @ApiModelProperty({
     description: "User's id (read only)",
   })
@@ -97,6 +122,19 @@ export default class User implements IUser {
   @ApiModelProperty({ model: "Journey", type: SwaggerDefinitionConstant.ARRAY })
   public queue: Journey[];
 
+  @ApiModelProperty({
+    model: "User",
+    type: SwaggerDefinitionConstant.ARRAY,
+  })
+  public follows: string[] | mongoose.Schema.Types.ObjectId[] | IUser[];
+
+  @ApiModelProperty({ model: "User.NotificationPreferences" })
+  notification_preferences: IUserNotificationPreferences;
+
+  //#endregion
+
+  //#region User properties that we are not interested on sharing on the model
   email: string;
   token_version: mongoose.Types.ObjectId;
+  //#endregion
 }

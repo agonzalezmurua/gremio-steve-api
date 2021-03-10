@@ -31,6 +31,7 @@
     "migrate": "^1.7.0",
     "mongoose": "^5.11.13",
     "mongoose-fuzzy-searching": "^2.0.2",
+    "node-notifier": "^9.0.0",
     "querystring": "^0.2.0",
     "r": "0.0.5",
     "reflect-metadata": "^0.1.13",

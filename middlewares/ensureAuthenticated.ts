@@ -7,7 +7,7 @@ import { Request, Response, NextFunction } from "express";
  * And populates the request object with `req.user` if there is any valid session
  */
 export default function ensureAuthenticated(
-  req: Request,
+  req: Request<any, any, any, any>,
   res: Response,
   next: NextFunction
 ): void {

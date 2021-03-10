@@ -1,12 +1,17 @@
 import { Request, Response } from "express";
 import {
   ApiOperationGet,
+  ApiOperationPatch,
   ApiPath,
   SwaggerDefinitionConstant,
 } from "swagger-express-ts";
 
 import UserModel from "_/models/user";
 import UserMongoose from "_/controllers/mongo/user";
+import authenticationResponses from "_/constants/swagger.authenticationResponses";
+import { IUserNotificationPreferences } from "_/schemas/user";
+import ActivityMongooseModel from "../mongo/activity";
+import Activity from "_/models/activity";
 
 @ApiPath({
   path: "/users",
@@ -88,6 +93,73 @@ class UserController {
       .exec();
 
     res.json(new UserModel(user));
+  }
+
+  @ApiOperationPatch({
+    path: "/:id/activity_feed",
+    parameters: {
+      body: {
+        model: "User.NotificationPreferences",
+      },
+    },
+    responses: {
+      200: {},
+      ...authenticationResponses,
+    },
+    security: {
+      ensureAuthenticated: [],
+    },
+  })
+  public async updateUserNotificationPreferences(
+    req: Request<{ id: string }, unknown, IUserNotificationPreferences>,
+    res: Response
+  ) {
+    const { app_notification, email } = req.body;
+    const user = await UserMongoose.findById(req.user.id);
+
+    user.notification_preferences.app_notification = app_notification;
+    user.notification_preferences.email = email;
+
+    await user.save({ validateBeforeSave: true });
+
+    res.json(true);
+  }
+
+  @ApiOperationGet({
+    path: "/:id/activity_feed",
+    parameters: {
+      query: {
+        limit: {
+          type: SwaggerDefinitionConstant.NUMBER,
+          default: 10,
+          maximum: 50,
+          minimum: 1,
+          allowEmptyValue: true,
+        },
+      },
+    },
+    responses: {
+      200: {},
+      ...authenticationResponses,
+    },
+    security: {
+      ensureAuthenticated: [],
+    },
+  })
+  public async getUserActivityFeed(
+    req: Request<{ id: string }, unknown, unknown, { limit: number }>,
+    res: Response
+  ) {
+    const limit = Math.min(1, 50, req.query.limit || 10);
+    const user = await UserMongoose.findById(req.user.id);
+
+    const activity = await ActivityMongooseModel.find({
+      who: { $in: user.follows },
+    })
+      .limit(limit)
+      .exec();
+
+    res.json(activity.map((document) => new Activity(document)));
   }
 }
 

@@ -32,6 +32,11 @@ export interface IUserPreferences {
   mania: boolean;
 }
 
+export interface IUserNotificationPreferences {
+  email: boolean;
+  app_notification: boolean;
+}
+
 /** Basic User interface, with main properties */
 export interface IUser {
   osu_id: string;
@@ -49,12 +54,15 @@ export interface IUser {
   queue?: IJourney[];
   email: string;
   token_version: mongoose.Types.ObjectId;
+  notification_preferences: IUserNotificationPreferences;
+  follows: Array<string | mongoose.ObjectId | IUser>;
 }
 
 /** Document interface of user */
 export interface IUserDocument extends IUser, mongoose.Document {
   journeys?: IJourneyDocument[];
   queue?: IJourneyDocument[];
+  follows: Array<string | mongoose.ObjectId | IUserDocument>;
 }
 
 /** Schema fields definition for user */
@@ -98,6 +106,15 @@ const UserSchemaFields: Utils.SchemaFields<IUser> = {
     type: mongoose.Schema.Types.ObjectId,
     select: false,
     default: () => mongoose.Types.ObjectId(),
+  },
+  follows: {
+    type: [mongoose.Schema.Types.ObjectId],
+    ref: "User",
+    default: [],
+  },
+  notification_preferences: {
+    email: Boolean,
+    app_notification: Boolean,
   },
 };
 
