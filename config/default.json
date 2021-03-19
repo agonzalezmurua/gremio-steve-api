@@ -25,8 +25,8 @@
     }
   },
   "database": {
-    "connection_string": "mongodb://{config.domain}/{config.name}",
-    "domain": "localhost:27017",
-    "name": "gremio-steve"
+    "host": "localhost",
+    "port": 27017,
+    "database": "gremio-steve"
   }
 }
