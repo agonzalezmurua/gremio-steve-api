@@ -1,7 +1,6 @@
 import { Controller, Get, HttpStatus, Param } from "@nestjs/common";
 
 import { UsersService } from "./users.service";
-import { User } from "./models/user.entity";
 import { ApiResponse } from "@nestjs/swagger";
 import { UserData } from "./models/user.data";
 
@@ -12,13 +11,17 @@ export class UsersController {
   @Get()
   @ApiResponse({ status: HttpStatus.OK, isArray: true, type: UserData })
   public async findAll(): Promise<UserData[]> {
-    return this.userService.findAll();
+    const users = await this.userService.findAll();
+
+    return users.map((user) => user.build());
   }
 
   @Get(":id")
   @ApiResponse({ status: HttpStatus.OK, type: UserData })
   public async getOneUserById(@Param("id") id: string): Promise<UserData> {
-    return this.userService.findOneById(id);
+    const user = await this.userService.findOneById(id);
+
+    return user.build();
   }
 
   @Get("myself")

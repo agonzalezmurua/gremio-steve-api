@@ -12,15 +12,12 @@ export class UsersService {
     @InjectRepository(User) private usersRepository: Repository<User>
   ) {}
 
-  async findAll(): Promise<UserData[]> {
-    const users = await this.usersRepository.find();
-
-    return users.map((user) => user.build());
+  async findAll(): Promise<User[]> {
+    return this.usersRepository.find();
   }
 
-  async findOneById(id: string): Promise<UserData> {
-    const user = await this.usersRepository.findOne(id);
-    return user.build();
+  async findOneById(id: string): Promise<User> {
+    return this.usersRepository.findOne(id);
   }
 
   async create(input: UserInput): Promise<User> {

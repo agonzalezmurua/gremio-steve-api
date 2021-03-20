@@ -1,7 +1,7 @@
 import { Module } from "@nestjs/common";
 import { TypeOrmModule } from "@nestjs/typeorm";
 
-import { CommonModule } from "../common/common.module";
+import { CommonModule } from "_/modules/common/common.module";
 
 import { Journey } from "./model";
 import { JourneysController } from "./journeys.controller";

@@ -1,5 +1,5 @@
 import { Body, Controller, Get, HttpStatus, Param, Post } from "@nestjs/common";
-import { ApiResponse, ApiTags } from "@nestjs/swagger";
+import { ApiBearerAuth, ApiResponse, ApiTags } from "@nestjs/swagger";
 
 import { JourneysService } from "./journeys.service";
 
@@ -13,16 +13,22 @@ export class JourneysController {
   constructor(private journeyService: JourneysService) {}
 
   @Get()
-  public async findAll(): Promise<Journey[]> {
-    return this.journeyService.findAll();
+  @ApiResponse({ status: HttpStatus.OK, type: JourneyData })
+  public async findAll(): Promise<JourneyData[]> {
+    const journeys = await this.journeyService.findAll();
+
+    return journeys.map((journey) => journey.build());
   }
 
   @Get(":id")
-  public async findById(@Param("id") id: string): Promise<Journey> {
-    return this.journeyService.findOneById(id);
+  @ApiResponse({ status: HttpStatus.OK, type: JourneyData })
+  public async findById(@Param("id") id: string): Promise<JourneyData> {
+    const journey = await this.journeyService.findOneById(id);
+    return journey.build();
   }
 
   @Post()
+  @ApiBearerAuth()
   @ApiResponse({ status: HttpStatus.CREATED, type: JourneyData })
   public async createOne(@Body() input: JourneyInput): Promise<JourneyData> {
     const journey = await this.journeyService.create(input);
