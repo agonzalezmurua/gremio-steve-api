@@ -5,7 +5,10 @@ import {
   RequestMethod,
 } from "@nestjs/common";
 import { TypeOrmModule } from "@nestjs/typeorm";
-import config = require("config");
+import { ConfigService } from "@nestjs/config";
+import { ConfigModule } from "@nestjs/config";
+
+import configuration from "~/config/configuration";
 
 import { UsersModule } from "_/modules/users/users.module";
 import { TrafficLoggerMiddleware } from "_/common/middlewares/TrafficLogger";
@@ -17,12 +20,19 @@ import { JourneysModule } from "_/modules/journeys/journeys.module";
 
 @Module({
   imports: [
-    TypeOrmModule.forRoot({
-      type: "mongodb",
-      host: config.get("database.host"),
-      port: config.get("database.port"),
-      database: config.get("database.database"),
-      entities: [User, Journey],
+    ConfigModule.forRoot({
+      isGlobal: true,
+      load: [configuration],
+    }),
+    TypeOrmModule.forRootAsync({
+      useFactory: (config: ConfigService) => ({
+        type: "mongodb",
+        host: config.get("database.host"),
+        port: Number(config.get("database.port")),
+        database: config.get("database.database"),
+        entities: [User, Journey],
+      }),
+      inject: [ConfigService],
     }),
     UsersModule,
     JourneysModule,

@@ -1,10 +1,10 @@
 import { Module } from "@nestjs/common";
+import { CloudinaryService } from "./providers/cloudinary.provider";
 
-import { ConfigProvider } from "./providers/config.provider";
 import { LoggerService } from "./services/logger.service";
 
 @Module({
-  providers: [LoggerService, ConfigProvider],
-  exports: [LoggerService, ConfigProvider],
+  providers: [LoggerService, CloudinaryService],
+  exports: [LoggerService, CloudinaryService],
 })
 export class CommonModule {}

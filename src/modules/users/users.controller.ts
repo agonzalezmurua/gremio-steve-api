@@ -1,9 +1,10 @@
 import { Controller, Get, HttpStatus, Param } from "@nestjs/common";
 
 import { UsersService } from "./users.service";
-import { ApiResponse } from "@nestjs/swagger";
+import { ApiResponse, ApiTags } from "@nestjs/swagger";
 import { UserData } from "./models/user.data";
 
+@ApiTags("users")
 @Controller("users")
 export class UsersController {
   constructor(private userService: UsersService) {}
@@ -24,7 +25,7 @@ export class UsersController {
     return user.build();
   }
 
-  @Get("myself")
+  @Get("@me")
   @ApiResponse({ status: HttpStatus.OK, type: UserData })
   public async getMyUser(): Promise<UserData> {
     return this.userService.findOneById("");

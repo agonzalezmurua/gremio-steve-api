@@ -3,7 +3,6 @@ import { ApiBearerAuth, ApiResponse, ApiTags } from "@nestjs/swagger";
 
 import { JourneysService } from "./journeys.service";
 
-import { Journey } from "./model/journey.entity";
 import { JourneyInput } from "./model/journey.input";
 import { JourneyData } from "./model/journey.data";
 

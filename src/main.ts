@@ -2,21 +2,24 @@ import "reflect-metadata";
 
 import { NestFactory } from "@nestjs/core";
 import { SwaggerModule, DocumentBuilder } from "@nestjs/swagger";
+import { ConfigService } from "@nestjs/config";
+
+import "dotenv";
 
 import consola from "consola";
 import colors = require("colors");
 import cors from "cors";
 import bodyParser = require("body-parser");
 import cookieParser = require("cookie-parser");
-import config = require("config");
 
 import { AppModule } from "_/modules/app/app.module";
 
 import prefixes from "./common/constants/consola.prefixes";
-import { configure as configureCloudinary } from "./modules/common/providers/cloudinary.provider";
 
 async function bootstrap(): Promise<void> {
   const app = await NestFactory.create(AppModule);
+  const config = app.get(ConfigService);
+
   consola.debug(
     prefixes.app,
     "Allowing the following origin (CORS)",
@@ -40,8 +43,7 @@ async function bootstrap(): Promise<void> {
 
   SwaggerModule.setup("api", app, swaggerDocument);
 
-  await configureCloudinary();
-  await app.listen(3000);
+  await app.listen(config.get("web.port"));
 }
 
 bootstrap();

@@ -1,0 +1,10 @@
+web:
+  port: 3000
+cors:
+  allowed_origin: http://localhost:3000
+osu:
+  url: https://osu.ppy.sh/api/v2
+database:
+  host: localhost
+  port: 27017
+  database: gremio-steve
