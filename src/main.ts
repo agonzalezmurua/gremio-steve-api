@@ -13,7 +13,7 @@ import config = require("config");
 import { AppModule } from "_/modules/app/app.module";
 
 import prefixes from "./common/constants/consola.prefixes";
-import { configure as configureCloudinary } from "./common/providers/cloudinary.provider";
+import { configure as configureCloudinary } from "./modules/common/providers/cloudinary.provider";
 
 async function bootstrap(): Promise<void> {
   const app = await NestFactory.create(AppModule);
@@ -32,10 +32,8 @@ async function bootstrap(): Promise<void> {
   app.use(bodyParser.urlencoded({ extended: true })); // Add support to read x-www-form-urlencoded form data
 
   const swaggerConfig = new DocumentBuilder()
-    .setTitle("Cats example")
-    .setDescription("The cats API description")
+    .setTitle("Gremio Steve")
     .setVersion("1.0")
-    .addTag("cats")
     .build();
 
   const swaggerDocument = SwaggerModule.createDocument(app, swaggerConfig);

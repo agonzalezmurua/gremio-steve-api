@@ -1,24 +1,29 @@
-import { Controller, Get, Param } from "@nestjs/common";
-import { IUser } from "_/modules/users/interfaces/user.interface";
-import { UsersService } from "_/modules/users/users.service";
-import { User } from "./user.entity";
+import { Controller, Get, HttpStatus, Param } from "@nestjs/common";
+
+import { UsersService } from "./users.service";
+import { User } from "./models/user.entity";
+import { ApiResponse } from "@nestjs/swagger";
+import { UserData } from "./models/user.data";
 
 @Controller("users")
 export class UsersController {
   constructor(private userService: UsersService) {}
 
   @Get()
-  public async findAll(): Promise<User[]> {
+  @ApiResponse({ status: HttpStatus.OK, isArray: true, type: UserData })
+  public async findAll(): Promise<UserData[]> {
     return this.userService.findAll();
   }
 
   @Get(":id")
-  public async getOneUserById(@Param("id") id: string): Promise<IUser> {
-    return await this.userService.findOneById(id);
+  @ApiResponse({ status: HttpStatus.OK, type: UserData })
+  public async getOneUserById(@Param("id") id: string): Promise<UserData> {
+    return this.userService.findOneById(id);
   }
 
   @Get("myself")
-  public async getMyUser(): Promise<IUser> {
+  @ApiResponse({ status: HttpStatus.OK, type: UserData })
+  public async getMyUser(): Promise<UserData> {
     return this.userService.findOneById("");
   }
 

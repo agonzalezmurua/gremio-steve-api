@@ -9,7 +9,6 @@
     "postinstall": "husky install",
     "start:dev": "nest start --watch",
     "start:debug": "nest start --debug --watch",
-    "dev": "ts-node-dev --inspect --trace-warnings -r tsconfig-paths/register -- app.ts",
     "migrate": "cross-env MIGRATING=true node cli/migrate",
     "lint": "eslint . --ext .ts --fix --fix-type problem --fix-type suggestion",
     "prod": "node index.js"
@@ -42,6 +41,7 @@
     "querystring": "^0.2.0",
     "r": "0.0.5",
     "reflect-metadata": "^0.1.13",
+    "rxjs": "^6.6.6",
     "string-format": "^2.0.0",
     "swagger-ui-express": "^4.1.6",
     "ts-node": "^9.1.1",

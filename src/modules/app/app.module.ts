@@ -7,12 +7,13 @@ import {
 import { TypeOrmModule } from "@nestjs/typeorm";
 import config = require("config");
 
-import { AppController } from "./app.controller";
-import { AppService } from "./app.service";
-
 import { UsersModule } from "_/modules/users/users.module";
 import { TrafficLoggerMiddleware } from "_/common/middlewares/TrafficLogger";
-import { User } from "_/modules/users/user.entity";
+
+import { User } from "_/modules/users/models";
+import { Journey } from "_/modules/journeys/model";
+
+import { JourneysModule } from "_/modules/journeys/journeys.module";
 
 @Module({
   imports: [
@@ -21,12 +22,13 @@ import { User } from "_/modules/users/user.entity";
       host: config.get("database.host"),
       port: config.get("database.port"),
       database: config.get("database.database"),
-      entities: [User],
+      entities: [User, Journey],
     }),
     UsersModule,
+    JourneysModule,
   ],
-  controllers: [AppController],
-  providers: [AppService],
+  controllers: [],
+  providers: [],
 })
 export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer): void {

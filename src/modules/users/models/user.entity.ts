@@ -1,15 +1,10 @@
 import { Entity, Column, OneToMany, ObjectIdColumn } from "typeorm";
-import {
-  IAvailability,
-  IUser,
-  IUserNotificationPreferences,
-  IUserPreferences,
-  UserRole,
-  UserStatus,
-} from "./interfaces/user.interface";
+
+import { UserRole } from "../types/user-role";
+import { UserData } from "./user.data";
 
 @Entity("users")
-export class User implements IUser {
+export class User {
   @ObjectIdColumn()
   id: string;
 
@@ -28,8 +23,8 @@ export class User implements IUser {
   @Column()
   banner_url?: string;
 
-  @Column()
-  availability: IAvailability;
+  // @Column()
+  // availability: IAvailability;
 
   @Column()
   community_role: string;
@@ -37,11 +32,11 @@ export class User implements IUser {
   @Column()
   role: UserRole;
 
-  @Column()
-  preferences: IUserPreferences;
+  // @Column()
+  // preferences: IUserPreferences;
 
-  @Column()
-  status: UserStatus;
+  // @Column()
+  // status: UserStatus;
 
   @Column()
   description?: string;
@@ -52,9 +47,17 @@ export class User implements IUser {
   @Column()
   token_version: string;
 
-  @Column()
-  notification_preferences: IUserNotificationPreferences;
+  // @Column()
+  // notification_preferences: IUserNotificationPreferences;
 
   @OneToMany(() => User, (user) => user.id)
   follows: string[];
+
+  public build(): UserData {
+    return {
+      id: this.id,
+      name: this.name,
+      osu_id: this.osu_id,
+    };
+  }
 }
