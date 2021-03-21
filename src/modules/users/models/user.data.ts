@@ -5,7 +5,7 @@ export class UserData {
   public readonly id: number;
 
   @ApiProperty({ description: "User's osu id" })
-  public readonly osu_id: string;
+  public readonly osu_id: number;
 
   @ApiProperty()
   public readonly name: string;

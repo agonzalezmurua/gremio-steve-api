@@ -1,10 +1,4 @@
-import {
-  Entity,
-  Column,
-  OneToMany,
-  ObjectIdColumn,
-  PrimaryColumn,
-} from "typeorm";
+import { Entity, Column, OneToMany, PrimaryGeneratedColumn } from "typeorm";
 import { Journey } from "_/modules/journeys/model";
 
 import { UserRole } from "../types/user-role";
@@ -12,11 +6,11 @@ import { UserData } from "./user.data";
 
 @Entity("users")
 export class User {
-  @PrimaryColumn()
+  @PrimaryGeneratedColumn()
   id: number;
 
   @Column()
-  osu_id: string;
+  osu_id: number;
 
   @Column()
   name: string;
@@ -24,10 +18,10 @@ export class User {
   @Column({ default: true })
   active: boolean;
 
-  @Column()
-  avatar_url: string;
+  @Column({ nullable: true })
+  avatar_url?: string;
 
-  @Column()
+  @Column({ nullable: true })
   banner_url?: string;
 
   @OneToMany(() => Journey, (user) => user.organizer)
@@ -36,10 +30,10 @@ export class User {
   // @Column()
   // availability: IAvailability;
 
-  @Column()
-  community_role: string;
+  // @Column({ default: UserRole.USER })
+  // community_role: string;
 
-  @Column()
+  @Column({ default: UserRole.USER })
   role: UserRole;
 
   // @Column()
@@ -48,14 +42,11 @@ export class User {
   // @Column()
   // status: UserStatus;
 
-  @Column()
+  @Column({ default: "" })
   description?: string;
 
-  @Column()
+  @Column({ default: "" })
   email: string;
-
-  @Column()
-  token_version: string;
 
   // @Column()
   // notification_preferences: IUserNotificationPreferences;

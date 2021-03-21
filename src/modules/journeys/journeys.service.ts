@@ -26,10 +26,8 @@ export class JourneysService {
     journey.artist = input.artist;
     journey.osu_link = input.osu_link;
     journey.title = input.title;
-    journey.covers = {
-      banner: input.covers.banner,
-      thumbnail: input.covers.thumbnail,
-    };
+    journey.covers_banner = input.covers.banner;
+    journey.covers_thumbnail = input.covers.thumbnail;
     journey.organizer = owner;
 
     return this.journeysRepository.save(journey);

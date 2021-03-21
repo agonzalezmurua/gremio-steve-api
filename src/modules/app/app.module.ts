@@ -36,6 +36,7 @@ import { AuthModule } from "_/modules/auth/auth.module";
         database: config.get("database.database"),
 
         entities: [User, Journey],
+        synchronize: true,
       }),
       inject: [ConfigService],
     }),

@@ -1,6 +1,5 @@
 import { ApiProperty } from "@nestjs/swagger";
 import { UserData } from "_/modules/users/models";
-import { Cover } from "./cover.entity";
 
 export class JourneyData {
   @ApiProperty({ description: "Journeys unique id" })
@@ -19,5 +18,8 @@ export class JourneyData {
   public readonly organizer: UserData;
 
   @ApiProperty()
-  public readonly covers: Cover;
+  public readonly covers: {
+    banner: string;
+    thumbnail: string;
+  };
 }

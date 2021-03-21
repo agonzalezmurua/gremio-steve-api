@@ -9,17 +9,17 @@ export class LoggerService {
     });
   }
 
-  public success(...args: unknown[]): void {
-    this.instance.success(args);
+  public success(...args: Parameters<Consola["success"]>): void {
+    this.instance.success(...args);
   }
-  public trace(...args: unknown[]): void {
-    this.instance.trace(args);
+  public trace(...args: Parameters<Consola["trace"]>): void {
+    this.instance.trace(...args);
   }
-  public info(...args: unknown[]): void {
-    this.instance.info(args);
+  public info(...args: Parameters<Consola["info"]>): void {
+    this.instance.info(...args);
   }
-  public error(...args: unknown[]): void {
-    this.instance.error(args);
+  public error(...args: Parameters<Consola["error"]>): void {
+    this.instance.error(...args);
   }
 
   private isTestEnv(): boolean {

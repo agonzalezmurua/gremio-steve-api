@@ -13,7 +13,7 @@ OSU_CLIENT_ID=
 OSU_CLIENT_SECRET=
 OSU_AUTH_AUTHORIZATION_URL="https://osu.ppy.sh/oauth/authorize"
 OSU_AUTH_TOKEN_URL="https://osu.ppy.sh/oauth/token"
-OSU_REDIRECT_URI="http://localhost:3000/#/auth/osu/callback"
+OSU_CALLBACK_URL="http://localhost:3000/#/auth/osu/callback"
 
 HOSTING_CLOUD_NAME=
 HOSTING_CLOUD_API_KEY=

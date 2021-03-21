@@ -1,4 +1,5 @@
-import { Injectable, UnauthorizedException } from "@nestjs/common";
+import { Injectable } from "@nestjs/common";
+import { User } from "../users/models";
 
 import { UsersService } from "../users/users.service";
 
@@ -6,11 +7,9 @@ import { UsersService } from "../users/users.service";
 export class AuthService {
   constructor(private usersService: UsersService) {}
 
-  async findUserFromOsuById(id: number): Promise<unknown> {
+  async findUserFromOsuById(id: number): Promise<User> {
     const user = await this.usersService.findByOsuId(id);
-    if (!user) {
-      throw new UnauthorizedException();
-    }
+
     return user;
   }
 }

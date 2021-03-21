@@ -1,5 +1,4 @@
 import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
-import { Cover } from "./cover.entity";
 
 import { User } from "_/modules/users/models/user.entity";
 
@@ -8,7 +7,7 @@ import { JourneyData } from "./journey.data";
 @Entity("journeys")
 export class Journey {
   @PrimaryGeneratedColumn()
-  readonly id: number;
+  id: number;
 
   @Column()
   title: string;
@@ -19,8 +18,11 @@ export class Journey {
   @ManyToOne(() => User, (user) => user.journeys)
   organizer: User;
 
-  @Column(() => Cover)
-  covers: Cover;
+  @Column()
+  covers_thumbnail: string;
+
+  @Column()
+  covers_banner: string;
 
   @Column()
   osu_link?: string;
@@ -32,7 +34,10 @@ export class Journey {
       artist: this.artist,
       osu_link: this.osu_link,
       organizer: this.organizer.build(),
-      covers: this.covers,
+      covers: {
+        banner: this.covers_banner,
+        thumbnail: this.covers_thumbnail,
+      },
     };
   }
 }

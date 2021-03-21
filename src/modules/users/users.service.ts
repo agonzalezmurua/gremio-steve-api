@@ -27,7 +27,10 @@ export class UsersService {
   async create(input: UserInput): Promise<User> {
     const user = new User();
 
+    user.osu_id = input.osu_id;
     user.name = input.name;
+    user.avatar_url = input.avatar_url;
+    user.banner_url = input.banner_url;
 
     return this.usersRepository.save(user);
   }
