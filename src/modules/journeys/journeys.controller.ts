@@ -51,7 +51,7 @@ export class JourneysController {
 
   @Get(":id")
   @ApiResponse({ status: HttpStatus.OK, type: JourneyData })
-  public async findById(@Param("id") id: string): Promise<JourneyData> {
+  public async findOneById(@Param("id") id: string): Promise<JourneyData> {
     const journey = await this.journeyService.findOneById(id);
     return journey.build();
   }

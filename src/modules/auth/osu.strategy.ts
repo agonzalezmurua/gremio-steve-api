@@ -3,22 +3,23 @@ import { ConfigService } from "@nestjs/config";
 import { PassportStrategy } from "@nestjs/passport";
 import { Strategy } from "passport-oauth2";
 import querystring = require("querystring");
-import { LoggerService } from "../common/services/logger.service";
-import { User } from "../users/models";
-import { UsersService } from "../users/users.service";
 
 import { AuthService } from "./auth.service";
+
+import { User } from "../users/models";
+import { ExtractJwt } from "passport-jwt";
+import { AuthProviders } from "./types/AuthProviders";
+import { AuthResponse } from "./model/AuthResponse";
 
 @Injectable()
 export class OsuStrategy extends PassportStrategy(Strategy, "osu") {
   constructor(
     private http: HttpService,
     private config: ConfigService,
-    private authService: AuthService,
-    private logger: LoggerService,
-    private usersService: UsersService
+    private authService: AuthService
   ) {
     super({
+      jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
       authorizationURL:
         process.env.OSU_AUTH_AUTHORIZATION_URL +
         "?" +
@@ -36,7 +37,7 @@ export class OsuStrategy extends PassportStrategy(Strategy, "osu") {
     });
   }
 
-  async validate(acessToken: string): Promise<unknown> {
+  async validate(acessToken: string): Promise<User> {
     const { data } = await this.http
       .get("/me", {
         baseURL: this.config.get("osu.url"),
@@ -49,8 +50,7 @@ export class OsuStrategy extends PassportStrategy(Strategy, "osu") {
     let user: User = await this.authService.findUserFromOsuById(data.id);
 
     if (!user) {
-      this.logger.info("Creating", data.username, "with id", data.id);
-      user = await this.usersService.create({
+      user = await this.authService.register({
         osu_id: data.id,
         name: data.username,
         avatar_url: data.avatar_url,

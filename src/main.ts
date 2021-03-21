@@ -1,10 +1,9 @@
 import "reflect-metadata";
+import "dotenv";
 
 import { NestFactory } from "@nestjs/core";
 import { SwaggerModule, DocumentBuilder } from "@nestjs/swagger";
 import { ConfigService } from "@nestjs/config";
-
-import "dotenv";
 
 import consola from "consola";
 import colors = require("colors");

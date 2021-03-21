@@ -9,4 +9,10 @@ export class UserData {
 
   @ApiProperty()
   public readonly name: string;
+
+  @ApiProperty()
+  public readonly avatar_url: string;
+
+  @ApiProperty()
+  public readonly banner_url: string;
 }

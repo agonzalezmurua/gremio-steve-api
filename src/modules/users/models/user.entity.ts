@@ -1,9 +1,16 @@
-import { Entity, Column, OneToMany, PrimaryGeneratedColumn } from "typeorm";
+import {
+  Entity,
+  Column,
+  OneToMany,
+  PrimaryGeneratedColumn,
+  Unique,
+} from "typeorm";
 import { Journey } from "_/modules/journeys/model";
 
 import { UserRole } from "../types/user-role";
 import { UserData } from "./user.data";
 
+@Unique(["osu_id"])
 @Entity("users")
 export class User {
   @PrimaryGeneratedColumn()
@@ -59,6 +66,8 @@ export class User {
       id: this.id,
       name: this.name,
       osu_id: this.osu_id,
+      avatar_url: this.avatar_url,
+      banner_url: this.banner_url,
     };
   }
 }
