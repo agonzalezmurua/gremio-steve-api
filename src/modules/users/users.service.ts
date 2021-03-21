@@ -16,11 +16,11 @@ export class UsersService {
     return this.usersRepository.find();
   }
 
-  async findByOsuId(id: string): Promise<User> {
+  async findByOsuId(id: number): Promise<User> {
     return this.usersRepository.findOne({ where: { osu_id: id } });
   }
 
-  async findOneById(id: string): Promise<User> {
+  async findOneById(id: number): Promise<User> {
     return this.usersRepository.findOne(id);
   }
 

@@ -1,5 +1,5 @@
-import { Column, Entity, JoinColumn, ObjectIdColumn, OneToOne } from "typeorm";
-import { CoversEntity } from "./covers.entity";
+import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
+import { Cover } from "./cover.entity";
 
 import { User } from "_/modules/users/models/user.entity";
 
@@ -7,8 +7,8 @@ import { JourneyData } from "./journey.data";
 
 @Entity("journeys")
 export class Journey {
-  @ObjectIdColumn()
-  id: string;
+  @PrimaryGeneratedColumn()
+  readonly id: number;
 
   @Column()
   title: string;
@@ -16,12 +16,11 @@ export class Journey {
   @Column()
   artist: string;
 
-  @OneToOne(() => User, (user) => user.id)
-  @JoinColumn()
+  @ManyToOne(() => User, (user) => user.journeys)
   organizer: User;
 
-  @Column()
-  covers: CoversEntity;
+  @Column(() => Cover)
+  covers: Cover;
 
   @Column()
   osu_link?: string;
@@ -29,6 +28,11 @@ export class Journey {
   public build(): JourneyData {
     return {
       id: this.id,
+      title: this.title,
+      artist: this.artist,
+      osu_link: this.osu_link,
+      organizer: this.organizer.build(),
+      covers: this.covers,
     };
   }
 }

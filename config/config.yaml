@@ -1,10 +1,11 @@
 web:
-  port: 3000
+  port: 3010
 cors:
   allowed_origin: http://localhost:3000
 osu:
   url: https://osu.ppy.sh/api/v2
 database:
   host: localhost
-  port: 27017
+  port: 5432
   database: gremio-steve
+  username: postgres

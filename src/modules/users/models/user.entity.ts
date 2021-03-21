@@ -1,12 +1,19 @@
-import { Entity, Column, OneToMany, ObjectIdColumn } from "typeorm";
+import {
+  Entity,
+  Column,
+  OneToMany,
+  ObjectIdColumn,
+  PrimaryColumn,
+} from "typeorm";
+import { Journey } from "_/modules/journeys/model";
 
 import { UserRole } from "../types/user-role";
 import { UserData } from "./user.data";
 
 @Entity("users")
 export class User {
-  @ObjectIdColumn()
-  id: string;
+  @PrimaryColumn()
+  id: number;
 
   @Column()
   osu_id: string;
@@ -22,6 +29,9 @@ export class User {
 
   @Column()
   banner_url?: string;
+
+  @OneToMany(() => Journey, (user) => user.organizer)
+  journeys: Journey[];
 
   // @Column()
   // availability: IAvailability;

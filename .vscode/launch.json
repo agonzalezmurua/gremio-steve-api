@@ -4,10 +4,10 @@
     {
       "type": "node",
       "request": "attach",
-      "name": "Debug: Attach",
-      "address": "localhost",
+      "name": "Attach NestJS WS",
       "port": 9229,
       "restart": true,
+      "stopOnEntry": false,
       "protocol": "inspector"
     }
   ]

@@ -1,25 +1,27 @@
-import { HttpService, Inject, Injectable } from "@nestjs/common";
+import { HttpService, Injectable } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import { PassportStrategy } from "@nestjs/passport";
 import { Strategy } from "passport-oauth2";
 import querystring = require("querystring");
 
+import { LoggerService } from "../common/services/logger.service";
 import { AuthService } from "./auth.service";
 
 @Injectable()
 export class OsuStrategy extends PassportStrategy(Strategy, "osu") {
   constructor(
-    @Inject() private http: HttpService,
-    @Inject() private config: ConfigService,
-    @Inject() private authService: AuthService
+    private http: HttpService,
+    private config: ConfigService,
+    private authService: AuthService
   ) {
     super({
       authorizationURL:
         process.env.OSU_AUTH_AUTHORIZATION_URL +
+        "?" +
         querystring.encode({
           client_id: process.env.OSU_CLIENT_ID,
-          client_secret: process.env.OSU_CLIENT_SECRET,
-          grant_type: "client_credentials",
+          redirect_uri: process.env.OSU_REDIRECT_URI,
+          response_type: "code",
           scope: "public",
         }),
       clientID: process.env.OSU_CLIENT_ID,

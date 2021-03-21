@@ -17,6 +17,7 @@ import { User } from "_/modules/users/models";
 import { Journey } from "_/modules/journeys/model";
 
 import { JourneysModule } from "_/modules/journeys/journeys.module";
+import { AuthModule } from "_/modules/auth/auth.module";
 
 @Module({
   imports: [
@@ -26,16 +27,21 @@ import { JourneysModule } from "_/modules/journeys/journeys.module";
     }),
     TypeOrmModule.forRootAsync({
       useFactory: (config: ConfigService) => ({
-        type: "mongodb",
+        type: "postgres",
+
         host: config.get("database.host"),
         port: Number(config.get("database.port")),
+        username: config.get("database.username"),
+        password: process.env.DATABASE_PASSWORD,
         database: config.get("database.database"),
+
         entities: [User, Journey],
       }),
       inject: [ConfigService],
     }),
     UsersModule,
     JourneysModule,
+    AuthModule,
   ],
   controllers: [],
   providers: [],

@@ -1,4 +1,5 @@
 import { HttpModule, Module } from "@nestjs/common";
+import { ConfigService, ConfigModule } from "@nestjs/config";
 import { PassportModule } from "@nestjs/passport";
 
 import { CommonModule } from "../common/common.module";
@@ -8,8 +9,15 @@ import { AuthService } from "./auth.service";
 import { OsuStrategy } from "./osu.strategy";
 
 @Module({
-  imports: [UsersModule, PassportModule, HttpModule, CommonModule],
-  providers: [AuthService, OsuStrategy],
+  imports: [
+    PassportModule,
+    CommonModule,
+    UsersModule,
+    HttpModule,
+    ConfigModule,
+  ],
+  providers: [AuthService, OsuStrategy, ConfigService],
+  exports: [AuthService],
   controllers: [AuthController],
 })
 export class AuthModule {}

@@ -1,6 +1,7 @@
 import { Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
+import { User } from "../users/models";
 
 import { Journey } from "./model/journey.entity";
 import { JourneyInput } from "./model/journey.input";
@@ -19,12 +20,17 @@ export class JourneysService {
     return this.journeysRepository.findOne(id);
   }
 
-  create(input: JourneyInput): Promise<Journey> {
+  create(input: JourneyInput, owner: User): Promise<Journey> {
     const journey = new Journey();
 
     journey.artist = input.artist;
     journey.osu_link = input.osu_link;
     journey.title = input.title;
+    journey.covers = {
+      banner: input.covers.banner,
+      thumbnail: input.covers.thumbnail,
+    };
+    journey.organizer = owner;
 
     return this.journeysRepository.save(journey);
   }

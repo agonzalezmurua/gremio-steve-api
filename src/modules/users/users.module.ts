@@ -5,7 +5,7 @@ import { CommonModule } from "_/modules/common/common.module";
 
 import { UsersController } from "./users.controller";
 import { UsersService } from "./users.service";
-import { User } from "./models/user.entity";
+import { User } from "./models";
 
 @Module({
   imports: [TypeOrmModule.forFeature([User]), CommonModule],

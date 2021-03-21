@@ -19,7 +19,7 @@ export class UsersController {
 
   @Get(":id")
   @ApiResponse({ status: HttpStatus.OK, type: UserData })
-  public async getOneUserById(@Param("id") id: string): Promise<UserData> {
+  public async getOneUserById(@Param("id") id: number): Promise<UserData> {
     const user = await this.userService.findOneById(id);
 
     return user.build();
@@ -28,7 +28,8 @@ export class UsersController {
   @Get("@me")
   @ApiResponse({ status: HttpStatus.OK, type: UserData })
   public async getMyUser(): Promise<UserData> {
-    return this.userService.findOneById("");
+    const user = await this.userService.findOneById(0);
+    return user.build();
   }
 
   // @Patch(":id")
