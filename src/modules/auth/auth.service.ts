@@ -54,7 +54,6 @@ export class AuthService {
     authResponse.access_token = this.jwtService.sign(payload);
     authResponse.expires_in = 1000 * 60 * 60 * 24;
     authResponse.token_type = "Bearer";
-    authResponse.refresh_token = "";
 
     return authResponse;
   }

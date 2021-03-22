@@ -11,7 +11,7 @@ import cors from "cors";
 import bodyParser = require("body-parser");
 import cookieParser = require("cookie-parser");
 
-import { AppModule } from "_/modules/app/app.module";
+import { AppModule } from "_/app.module";
 
 import prefixes from "./common/constants/consola.prefixes";
 

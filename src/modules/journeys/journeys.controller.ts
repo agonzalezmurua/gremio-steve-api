@@ -65,10 +65,10 @@ export class JourneysController {
     return journey.build();
   }
 
-  @Delete(":id")
-  @ApiResponse({ status: HttpStatus.NO_CONTENT })
-  @ApiResponse({ status: HttpStatus.NOT_FOUND })
-  public async deleteOneById(@Param("id") id: string): Promise<void> {
-    this.journeyService.deleteOneById(id);
-  }
+  // @Delete(":id")
+  // @ApiResponse({ status: HttpStatus.NO_CONTENT })
+  // @ApiResponse({ status: HttpStatus.NOT_FOUND })
+  // public async deleteOneById(@Param("id") id: string): Promise<void> {
+  //   this.journeyService.deleteOneById(id);
+  // }
 }

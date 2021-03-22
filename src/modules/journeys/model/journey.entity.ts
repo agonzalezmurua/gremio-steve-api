@@ -1,6 +1,8 @@
 import {
   Column,
   Entity,
+  JoinColumn,
+  JoinTable,
   ManyToOne,
   PrimaryGeneratedColumn,
   Unique,
@@ -25,6 +27,7 @@ export class Journey {
   @Column()
   artist: string;
 
+  @JoinColumn({ name: "organizer_id" })
   @ManyToOne(() => User, (user) => user.journeys)
   organizer: User;
 

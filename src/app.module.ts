@@ -18,6 +18,8 @@ import { Journey } from "_/modules/journeys/model";
 
 import { JourneysModule } from "_/modules/journeys/journeys.module";
 import { AuthModule } from "_/modules/auth/auth.module";
+import { Activity } from "./modules/activity/models/activity.entity";
+import { ActivityModule } from "./modules/activity/activity.module";
 
 @Module({
   imports: [
@@ -35,7 +37,7 @@ import { AuthModule } from "_/modules/auth/auth.module";
         password: process.env.DATABASE_PASSWORD,
         database: config.get("database.database"),
 
-        entities: [User, Journey],
+        entities: [User, Journey, Activity],
         synchronize: true,
       }),
       inject: [ConfigService],
@@ -43,6 +45,7 @@ import { AuthModule } from "_/modules/auth/auth.module";
     UsersModule,
     JourneysModule,
     AuthModule,
+    ActivityModule,
   ],
   controllers: [],
   providers: [],

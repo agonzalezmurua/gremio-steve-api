@@ -1,7 +1,7 @@
 NODE_ENV=development
 CONSOLA_LEVEL=
 
-#DATABASE
+# DATABASE
 DATABASE_USERNAME=
 DATABASE_PASSWORD=
 
@@ -15,6 +15,7 @@ OSU_AUTH_AUTHORIZATION_URL="https://osu.ppy.sh/oauth/authorize"
 OSU_AUTH_TOKEN_URL="https://osu.ppy.sh/oauth/token"
 OSU_CALLBACK_URL="http://localhost:3000/#/auth/osu/callback"
 
+# CLOUDINARY
 HOSTING_CLOUD_NAME=
 HOSTING_CLOUD_API_KEY=
 HOSTING_CLOUD_API_SECRET=
