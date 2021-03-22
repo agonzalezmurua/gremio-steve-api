@@ -9,23 +9,24 @@ import { UsersModule } from "../users/users.module";
 import { AuthController } from "./auth.controller";
 
 import { AuthService } from "./auth.service";
+import { JwtStrategy } from "./jwt.strategy";
 import { OsuStrategy } from "./osu.strategy";
 
 @Module({
   imports: [
+    PassportModule,
+    CommonModule,
+    UsersModule,
+    HttpModule,
+    ConfigModule,
     JwtModule.registerAsync({
       useFactory: async () => ({
         secret: process.env.APP_AUTH_SECRET,
         signOptions: { expiresIn: "1d" },
       }),
     }),
-    PassportModule,
-    CommonModule,
-    UsersModule,
-    HttpModule,
-    ConfigModule,
   ],
-  providers: [AuthService, OsuStrategy],
+  providers: [AuthService, OsuStrategy, JwtStrategy],
   exports: [AuthService, JwtModule],
   controllers: [AuthController],
 })

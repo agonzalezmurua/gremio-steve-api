@@ -11,7 +11,8 @@ import {
 import { AuthGuard } from "@nestjs/passport";
 import { ApiResponse, ApiTags } from "@nestjs/swagger";
 import { AuthService } from "./auth.service";
-import { AuthResponse } from "./model/AuthResponse";
+import { AuthPayload } from "./model/AuthPayload";
+import { OsuAuthGuard } from "./osu-auth.guard";
 import { AuthProviders } from "./types/AuthProviders";
 
 @ApiTags("auth")
@@ -19,23 +20,20 @@ import { AuthProviders } from "./types/AuthProviders";
 export class AuthController {
   constructor(private authService: AuthService) {}
 
+  @UseGuards(OsuAuthGuard)
   @Get("osu")
-  @UseGuards(AuthGuard("osu"))
   @ApiResponse({ status: HttpStatus.TEMPORARY_REDIRECT })
   async osuLogin(): Promise<void> {
     // initiates the Osu OAuth2 login flow
   }
 
+  @UseGuards(OsuAuthGuard)
   @Get("osu/callback")
-  @UseGuards(AuthGuard("osu"))
-  @ApiResponse({ status: HttpStatus.OK, type: AuthResponse })
+  @ApiResponse({ status: HttpStatus.OK, type: AuthPayload })
   async osuLoginCallback(
     @Query("code") code: string,
     @Req() req
-  ): Promise<AuthResponse> {
-    return await this.authService.issueAuthResponse(
-      req.user.osu_id,
-      AuthProviders.OSU
-    );
+  ): Promise<AuthPayload> {
+    return await this.authService.login(req.user.osu_id, AuthProviders.OSU);
   }
 }

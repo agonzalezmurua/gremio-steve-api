@@ -1,13 +1,23 @@
-import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
+import {
+  Column,
+  Entity,
+  ManyToOne,
+  PrimaryGeneratedColumn,
+  Unique,
+} from "typeorm";
 
 import { User } from "_/modules/users/models/user.entity";
 
 import { JourneyData } from "./journey.data";
 
+@Unique(["osu_id"])
 @Entity("journeys")
 export class Journey {
   @PrimaryGeneratedColumn()
   id: number;
+
+  @Column()
+  osu_id: number;
 
   @Column()
   title: string;
@@ -30,6 +40,7 @@ export class Journey {
   public build(): JourneyData {
     return {
       id: this.id,
+      osu_id: this.osu_id,
       title: this.title,
       artist: this.artist,
       osu_link: this.osu_link,

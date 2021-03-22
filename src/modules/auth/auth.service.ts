@@ -5,7 +5,8 @@ import { User, UserInput } from "../users/models";
 
 import { UsersService } from "../users/users.service";
 import { AuthProviders } from "./types/AuthProviders";
-import { AuthResponse } from "./model/AuthResponse";
+import { AuthPayload } from "./model/AuthPayload";
+import { JwtPayload } from "./types/JwtPayload";
 
 @Injectable()
 export class AuthService {
@@ -26,10 +27,7 @@ export class AuthService {
     return await this.usersService.create(input);
   }
 
-  async issueAuthResponse(
-    id: number,
-    provider: AuthProviders
-  ): Promise<AuthResponse> {
+  async login(id: number, provider: AuthProviders): Promise<AuthPayload> {
     let user: User;
     switch (provider) {
       case AuthProviders.OSU:
@@ -43,8 +41,17 @@ export class AuthService {
       throw new UnauthorizedException();
     }
 
-    const authResponse = new AuthResponse();
-    authResponse.access_token = this.jwtService.sign(user.build());
+    const authResponse = new AuthPayload();
+
+    const payload: JwtPayload = {
+      avatar_url: user.avatar_url,
+      banner_url: user.banner_url,
+      id: user.id,
+      name: user.name,
+      osu_id: user.osu_id,
+    };
+
+    authResponse.access_token = this.jwtService.sign(payload);
     authResponse.expires_in = 1000 * 60 * 60 * 24;
     authResponse.token_type = "Bearer";
     authResponse.refresh_token = "";

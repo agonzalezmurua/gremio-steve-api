@@ -8,8 +8,6 @@ import { AuthService } from "./auth.service";
 
 import { User } from "../users/models";
 import { ExtractJwt } from "passport-jwt";
-import { AuthProviders } from "./types/AuthProviders";
-import { AuthResponse } from "./model/AuthResponse";
 
 @Injectable()
 export class OsuStrategy extends PassportStrategy(Strategy, "osu") {
@@ -19,7 +17,6 @@ export class OsuStrategy extends PassportStrategy(Strategy, "osu") {
     private authService: AuthService
   ) {
     super({
-      jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
       authorizationURL:
         process.env.OSU_AUTH_AUTHORIZATION_URL +
         "?" +
