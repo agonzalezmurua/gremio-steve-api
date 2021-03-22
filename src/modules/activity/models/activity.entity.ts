@@ -1,5 +1,6 @@
 import {
   Column,
+  CreateDateColumn,
   Entity,
   JoinColumn,
   ManyToOne,
@@ -11,15 +12,15 @@ import { Journey } from "_/modules/journeys/model";
 import { User } from "_/modules/users/models";
 
 import { ActivityKind } from "../types/ActivityKind";
-import { IActivity } from "../types/IActivity";
+import { ActivityInterface } from "../types/ActivityInterface";
 import { ActivityData } from "./activity.data";
 
 @Entity("activity")
-export class Activity implements IActivity {
+export class Activity implements ActivityInterface {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column({ default: new Date() })
+  @CreateDateColumn({ name: "created_at" })
   created_at: Date;
 
   @Column()

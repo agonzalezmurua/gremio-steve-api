@@ -20,7 +20,7 @@ export class JourneysService {
   }
 
   async findOneById(id: number): Promise<Journey> {
-    return this.journeysRepository.findOne(id, { relations: ["organizer"] });
+    return this.journeysRepository.findOne(id);
   }
 
   async create(input: JourneyInput, owner: User): Promise<Journey> {

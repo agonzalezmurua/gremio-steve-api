@@ -4,6 +4,9 @@ import {
   OneToMany,
   PrimaryGeneratedColumn,
   Unique,
+  JoinTable,
+  ManyToMany,
+  JoinColumn,
 } from "typeorm";
 import { Journey } from "_/modules/journeys/model";
 
@@ -34,6 +37,9 @@ export class User {
   @OneToMany(() => Journey, (user) => user.organizer)
   journeys: Journey[];
 
+  @Column({ type: "boolean", default: true })
+  is_available: boolean;
+
   // @Column()
   // availability: IAvailability;
 
@@ -55,12 +61,14 @@ export class User {
   @Column({ default: "" })
   email: string;
 
+  @ManyToMany(() => User, (User) => User.followers)
+  following: User[];
+
+  @ManyToMany(() => User, (User) => User.following)
+  followers: User[];
+
   // @Column()
   // notification_preferences: IUserNotificationPreferences;
-
-  @OneToMany(() => User, (user) => user.id)
-  follows: string[];
-
   public build(): UserData {
     return {
       id: this.id,

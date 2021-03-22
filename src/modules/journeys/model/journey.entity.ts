@@ -28,7 +28,7 @@ export class Journey {
   artist: string;
 
   @JoinColumn({ name: "organizer_id" })
-  @ManyToOne(() => User, (user) => user.journeys)
+  @ManyToOne(() => User, (user) => user.journeys, { eager: true })
   organizer: User;
 
   @Column()

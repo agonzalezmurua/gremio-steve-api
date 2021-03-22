@@ -10,16 +10,18 @@ import { ConfigModule } from "@nestjs/config";
 
 import configuration from "~/config/configuration";
 
-import { UsersModule } from "_/modules/users/users.module";
 import { TrafficLoggerMiddleware } from "_/common/middlewares/TrafficLogger";
 
-import { User } from "_/modules/users/models";
-import { Journey } from "_/modules/journeys/model";
-
-import { JourneysModule } from "_/modules/journeys/journeys.module";
-import { AuthModule } from "_/modules/auth/auth.module";
+import { UsersModule } from "./modules/users/users.module";
+import { JourneysModule } from "./modules/journeys/journeys.module";
+import { AuthModule } from "./modules/auth/auth.module";
 import { Activity } from "./modules/activity/models/activity.entity";
 import { ActivityModule } from "./modules/activity/activity.module";
+
+import { User } from "./modules/users/models";
+import { Journey } from "./modules/journeys/model";
+
+import { JourneySubscriber } from "./common/subscribers/activity.subscriber";
 
 @Module({
   imports: [
@@ -34,10 +36,11 @@ import { ActivityModule } from "./modules/activity/activity.module";
         host: config.get("database.host"),
         port: Number(config.get("database.port")),
         username: config.get("database.username"),
-        password: process.env.DATABASE_PASSWORD,
         database: config.get("database.database"),
+        password: process.env.DATABASE_PASSWORD,
 
         entities: [User, Journey, Activity],
+        subscribers: [JourneySubscriber],
         synchronize: true,
       }),
       inject: [ConfigService],

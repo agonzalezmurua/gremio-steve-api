@@ -3,7 +3,7 @@ import { User } from "_/modules/users/models";
 
 import { ActivityKind } from "./ActivityKind";
 
-export interface IActivity {
+export interface ActivityInterface {
   id: number;
   created_at: Date;
   kind: ActivityKind;
