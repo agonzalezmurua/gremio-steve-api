@@ -17,4 +17,9 @@ export class UserData {
     example: "https://osu.ppy.sh/images/headers/profile-covers/c8.jpg",
   })
   public readonly banner_url: string;
+
+  @ApiProperty({
+    example: "# About me",
+  })
+  public readonly description: string;
 }

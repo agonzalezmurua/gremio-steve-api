@@ -68,6 +68,7 @@ export class User {
       osu_id: this.osu_id,
       avatar_url: this.avatar_url,
       banner_url: this.banner_url,
+      description: this.description,
     };
   }
 }
