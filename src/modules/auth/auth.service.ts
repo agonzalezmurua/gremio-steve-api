@@ -1,7 +1,7 @@
 import { Injectable, UnauthorizedException } from "@nestjs/common";
 import { JwtService } from "@nestjs/jwt";
 import { LoggerService } from "../common/services/logger.service";
-import { User, UserInput } from "../users/models";
+import { User, UserCreateInput } from "../users/models";
 
 import { UsersService } from "../users/users.service";
 import { AuthProviders } from "./types/AuthProviders";
@@ -21,10 +21,10 @@ export class AuthService {
     return user;
   }
 
-  async register(input: UserInput): Promise<User> {
+  async register(input: UserCreateInput): Promise<User> {
     this.logger.info("Creating", input.name, "with id", input.osu_id);
 
-    return await this.usersService.create(input);
+    return await this.usersService.createOne(input);
   }
 
   async login(id: number, provider: AuthProviders): Promise<AuthPayload> {

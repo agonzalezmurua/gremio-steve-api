@@ -7,9 +7,15 @@ import { ActivityModule } from "_/modules/activity/activity.module";
 import { UsersController } from "./users.controller";
 import { UsersService } from "./users.service";
 import { User } from "./models";
+import { JourneysModule } from "../journeys/journeys.module";
 
 @Module({
-  imports: [TypeOrmModule.forFeature([User]), CommonModule, ActivityModule],
+  imports: [
+    TypeOrmModule.forFeature([User]),
+    CommonModule,
+    ActivityModule,
+    JourneysModule,
+  ],
   controllers: [UsersController],
   providers: [UsersService],
   exports: [UsersService],

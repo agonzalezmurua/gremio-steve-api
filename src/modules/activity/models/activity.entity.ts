@@ -7,6 +7,7 @@ import {
   OneToMany,
   OneToOne,
   PrimaryGeneratedColumn,
+  UpdateDateColumn,
 } from "typeorm";
 import { Journey } from "_/modules/journeys/model";
 import { User } from "_/modules/users/models";
@@ -18,20 +19,23 @@ import { ActivityData } from "./activity.data";
 @Entity("activity")
 export class Activity implements ActivityInterface {
   @PrimaryGeneratedColumn()
-  id: number;
+  readonly id: number;
 
   @CreateDateColumn({ name: "created_at" })
-  created_at: Date;
+  readonly created_at: Date;
+
+  @UpdateDateColumn({ name: "updated_at" })
+  readonly updated_at: Date;
 
   @Column()
   kind: ActivityKind;
 
   @JoinColumn({ name: "user_id" })
-  @ManyToOne(() => User)
+  @ManyToOne(() => User, { eager: true })
   user?: User;
 
   @JoinColumn({ name: "journey_id" })
-  @ManyToOne(() => Journey)
+  @ManyToOne(() => Journey, { eager: true })
   journey?: Journey;
 
   public build(): ActivityData {

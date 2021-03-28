@@ -36,7 +36,7 @@ export class OsuStrategy extends PassportStrategy(Strategy, "osu") {
 
   async validate(acessToken: string): Promise<User> {
     const { data } = await this.http
-      .get("/me", {
+      .get("/api/v2/me", {
         baseURL: this.config.get("osu.url"),
         headers: {
           Authorization: `Bearer ${acessToken}`,

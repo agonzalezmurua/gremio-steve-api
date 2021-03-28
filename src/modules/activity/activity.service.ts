@@ -10,11 +10,25 @@ export class ActivityService {
     @InjectRepository(Activity) private activityRepository: Repository<Activity>
   ) {}
 
-  public async findUserActivity(id: number): Promise<ActivityDataType[]> {
-    return await this.activityRepository
-      .createQueryBuilder("activity")
-      .where("user.id = :id", { id: id })
-      .orderBy("created_at", "ASC")
-      .getMany();
+  public findUserActivity(id: number): Promise<ActivityDataType[]> {
+    return this.activityRepository.find({
+      where: { user: { id: id } },
+      take: 50,
+    });
+  }
+
+  public findManyUsersActivity(ids: number[]): Promise<ActivityDataType[]> {
+    if (ids.length === 0) {
+      return Promise.resolve([]);
+    }
+
+    return this.activityRepository.find({
+      where: { user: { id: ids } },
+      order: { updated_at: "ASC" },
+    });
+  }
+
+  public async create(activity: Activity): Promise<Activity> {
+    return this.activityRepository.create(activity);
   }
 }

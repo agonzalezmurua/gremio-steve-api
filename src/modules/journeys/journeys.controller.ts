@@ -14,7 +14,7 @@ import { ApiBearerAuth, ApiResponse, ApiTags } from "@nestjs/swagger";
 
 import { JourneysService } from "./journeys.service";
 
-import { JourneyInput } from "./model/journey.input";
+import { JourneyCreateInput } from "./model/journey.create.input";
 import { JourneyData } from "./model/journey.data";
 
 import { LoggerService } from "_/modules/common/services/logger.service";
@@ -41,7 +41,7 @@ export class JourneysController {
   @UseGuards(JwtAuthGuard)
   @ApiResponse({ status: HttpStatus.CREATED, type: JourneyData })
   public async createOne(
-    @Body() input: JourneyInput,
+    @Body() input: JourneyCreateInput,
     @Req() request: Express.Request
   ): Promise<JourneyData> {
     const journey = await this.journeyService.create(

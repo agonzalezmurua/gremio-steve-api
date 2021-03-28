@@ -40,35 +40,27 @@ export class User {
   @Column({ type: "boolean", default: true })
   is_available: boolean;
 
-  // @Column()
-  // availability: IAvailability;
-
-  // @Column({ default: UserRole.USER })
-  // community_role: string;
-
   @Column({ default: UserRole.USER })
   role: UserRole;
 
-  // @Column()
-  // preferences: IUserPreferences;
-
-  // @Column()
-  // status: UserStatus;
-
   @Column({ default: "" })
-  description?: string;
+  description: string;
 
   @Column({ default: "" })
   email: string;
 
+  @JoinTable()
+  @ManyToMany(() => Journey, (Journey) => Journey.id)
+  queue: Journey[];
+
+  @JoinTable()
   @ManyToMany(() => User, (User) => User.followers)
   following: User[];
 
+  @JoinTable()
   @ManyToMany(() => User, (User) => User.following)
   followers: User[];
 
-  // @Column()
-  // notification_preferences: IUserNotificationPreferences;
   public build(): UserData {
     return {
       id: this.id,

@@ -1,13 +1,29 @@
-import { Controller, Get, HttpStatus, Param, UseGuards } from "@nestjs/common";
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  HttpStatus,
+  NotFoundException,
+  Param,
+  Patch,
+  Post,
+  Put,
+  Req,
+  UnauthorizedException,
+  UseGuards,
+} from "@nestjs/common";
 import { ApiBearerAuth, ApiResponse, ApiTags } from "@nestjs/swagger";
 
 import { JwtAuthGuard } from "_/modules/auth/jwt-autj.guard";
 
 import { ActivityService } from "_/modules/activity/activity.service";
+import { ActivityData } from "_/modules/activity/models/activity.data";
 
 import { UsersService } from "./users.service";
 import { UserData } from "./models/user.data";
-import { ActivityData } from "../activity/models/activity.data";
+import { UserUpdateInput } from "./models/user.update.input";
+import { JourneyData } from "../journeys/model";
 
 @ApiTags("users")
 @Controller("users")
@@ -25,10 +41,89 @@ export class UsersController {
     return users.map((user) => user.build());
   }
 
+  @Get("@me")
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard)
+  @ApiResponse({ status: HttpStatus.OK, type: UserData })
+  public async getMyself(@Req() request): Promise<UserData> {
+    const user = await this.userService.findOneById(request.user.id);
+    return user.build();
+  }
+
+  @Get("@me/activity-feed")
+  @UseGuards(JwtAuthGuard)
+  @ApiResponse({ status: HttpStatus.OK, type: ActivityData, isArray: true })
+  public async getMyActivityFeed(@Req() request): Promise<ActivityData[]> {
+    const followed = await this.userService.getFollowedUsers(request.user.id);
+    const feeds = await this.activityService.findManyUsersActivity(
+      followed.map(({ id }) => id)
+    );
+
+    return feeds.map((feed) => feed.build());
+  }
+
+  @Put("@me/queue/:journey_id")
+  @UseGuards(JwtAuthGuard)
+  @ApiResponse({ status: HttpStatus.OK })
+  public async addJourneyToMyQueue(
+    @Param("journey_id") journeyId: number,
+    @Req() request
+  ): Promise<void> {
+    await this.userService.addJourneyToUserQueue(journeyId, request.user.id);
+  }
+
+  @Delete("@me/queue/:journey_id")
+  @UseGuards(JwtAuthGuard)
+  @ApiResponse({ status: HttpStatus.OK })
+  public async removeJourneyFromMyQueue(
+    @Param("journey_id") journeyId: number,
+    @Req() request
+  ): Promise<void> {
+    await this.userService.removeJourneyFromUserQueue(
+      journeyId,
+      request.user.id
+    );
+  }
+
+  @Get("@me/queue")
+  @UseGuards(JwtAuthGuard)
+  @ApiResponse({ status: HttpStatus.OK, isArray: true, type: JourneyData })
+  public async getMyQueue(@Req() request) {
+    const queue = await this.userService.getUserQueue(request.user.id);
+    return queue.map((journey) => journey.build());
+  }
+
   @Get(":id")
   @ApiResponse({ status: HttpStatus.OK, type: UserData })
+  @ApiResponse({ status: HttpStatus.NOT_FOUND })
   public async getOneById(@Param("id") id: number): Promise<UserData> {
     const user = await this.userService.findOneById(id);
+
+    if (!user) {
+      throw new NotFoundException();
+    }
+
+    return user.build();
+  }
+
+  @Patch(":id")
+  @UseGuards(JwtAuthGuard)
+  @ApiResponse({ status: HttpStatus.OK, type: UserData })
+  @ApiResponse({ status: HttpStatus.NOT_FOUND })
+  @ApiResponse({ status: HttpStatus.UNAUTHORIZED })
+  public async updateOneById(
+    @Param("id") id: number,
+    @Body() payload: UserUpdateInput,
+    @Req() req
+  ): Promise<UserData> {
+    const isOwnEntry =
+      (await this.userService.findOneById(req.user.id)).id === id;
+
+    if (isOwnEntry === false) {
+      throw new UnauthorizedException();
+    }
+
+    const user = await this.userService.updateOne(id, payload);
 
     return user.build();
   }
@@ -36,46 +131,11 @@ export class UsersController {
   @Get(":id/activity")
   @ApiResponse({ status: HttpStatus.OK, type: ActivityData, isArray: true })
   public async getUserActivity(@Param("id") id: number) {
-    const activity = this.activityService.findUserActivity(id);
+    if ((await this.userService.exists(id)) === false) {
+      throw new NotFoundException();
+    }
+    const activities = await this.activityService.findUserActivity(id);
 
-    return activity;
+    return activities.map((activity) => activity.build());
   }
-
-  @Get("@me")
-  @ApiBearerAuth()
-  @UseGuards(JwtAuthGuard)
-  @ApiResponse({ status: HttpStatus.OK, type: UserData })
-  public async getMyUser(): Promise<UserData> {
-    const user = await this.userService.findOneById(0);
-    return user.build();
-  }
-
-  // @Patch(":id")
-  // public async updateUserNotificationPreferences(
-  //   @Param("id") id: string
-  // ) {
-
-  //   user.notification_preferences.app_notification = app_notification;
-  //   user.notification_preferences.email = email;
-
-  //   await user.save({ validateBeforeSave: true });
-
-  //   res.json(true);
-  // }
-
-  // public async getUserActivityFeed(
-  //   req: Request<{ id: string }, unknown, unknown, { limit: number }>,
-  //   res: Response
-  // ) {
-  //   const limit = Math.min(1, 50, req.query.limit || 10);
-  //   const user = await UserMongoose.findById(req.user.id);
-
-  //   const activity = await ActivityMongooseModel.find({
-  //     who: { $in: user.follows },
-  //   })
-  //     .limit(limit)
-  //     .exec();
-
-  //   res.json(activity.map((document) => new Activity(document)));
-  // }
 }

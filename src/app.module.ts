@@ -21,7 +21,7 @@ import { ActivityModule } from "./modules/activity/activity.module";
 import { User } from "./modules/users/models";
 import { Journey } from "./modules/journeys/model";
 
-import { JourneySubscriber } from "./common/subscribers/activity.subscriber";
+import { JourneySubscriber } from "./modules/journeys/journey.subscriber";
 
 @Module({
   imports: [

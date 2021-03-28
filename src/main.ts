@@ -14,9 +14,11 @@ import cookieParser = require("cookie-parser");
 import { AppModule } from "_/app.module";
 
 import prefixes from "./common/constants/consola.prefixes";
+import { ValidationPipe } from "@nestjs/common";
 
 async function bootstrap(): Promise<void> {
   const app = await NestFactory.create(AppModule);
+
   const config = app.get(ConfigService);
 
   consola.debug(
@@ -24,6 +26,8 @@ async function bootstrap(): Promise<void> {
     "Allowing the following origin (CORS)",
     colors.yellow(config.get("cors.allowed_origin"))
   );
+
+  app.useGlobalPipes(new ValidationPipe());
   app.use(
     cors({
       origin: config.get("cors.allowed_origin"),
@@ -34,6 +38,7 @@ async function bootstrap(): Promise<void> {
   app.use(bodyParser.urlencoded({ extended: true })); // Add support to read x-www-form-urlencoded form data
 
   const swaggerConfig = new DocumentBuilder()
+    .setBasePath("http://localhost:3010/")
     .setTitle("Gremio Steve")
     .setVersion("1.0")
     .build();

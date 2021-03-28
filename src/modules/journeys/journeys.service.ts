@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException } from "@nestjs/common";
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
 
@@ -6,7 +10,7 @@ import { OsuService } from "_/modules/osu/osu.service";
 import { User } from "_/modules/users/models";
 
 import { Journey } from "./model/journey.entity";
-import { JourneyInput } from "./model/journey.input";
+import { JourneyCreateInput } from "./model/journey.create.input";
 
 @Injectable()
 export class JourneysService {
@@ -23,17 +27,25 @@ export class JourneysService {
     return this.journeysRepository.findOne(id);
   }
 
-  async create(input: JourneyInput, owner: User): Promise<Journey> {
+  async create(input: JourneyCreateInput, owner: User): Promise<Journey> {
+    const osu_id = this.osuService.determineIdFromLink(input.osu_link);
+    const isOsuIdUsed =
+      (await this.journeysRepository.findOne({ where: { osu_id: osu_id } })) !==
+      null;
+
+    if (isOsuIdUsed) {
+      throw new BadRequestException();
+    }
+
     const journey = new Journey();
-    const id = this.osuService.determineIdFromLink(input.osu_link);
-    const beatmapset = await this.osuService.findBeatmapsetById(id);
+    const beatmapset = await this.osuService.findBeatmapsetById(osu_id);
 
     journey.artist = beatmapset.artist;
     journey.osu_link = input.osu_link;
     journey.title = beatmapset.title;
     journey.covers_banner = beatmapset.covers["cover@2x"];
     journey.covers_thumbnail = beatmapset.covers["list@2x"];
-    journey.osu_id = id;
+    journey.osu_id = osu_id;
     journey.organizer = owner;
 
     return this.journeysRepository.save(journey);
